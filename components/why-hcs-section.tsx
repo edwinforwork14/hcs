@@ -20,7 +20,7 @@ export function WhyHCSSection() {
         </div>
 
         {/* Advantages Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 justify-items-center">
           {whyHcsConfig.map((advantage, index) => (
             <div 
               key={index}
