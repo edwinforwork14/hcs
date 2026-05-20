@@ -96,7 +96,7 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">{t("footer.contactInfo")}</h4>
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm text-gray-400">
