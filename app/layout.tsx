@@ -1,0 +1,38 @@
+import type { Metadata } from 'next'
+import { Inter, Sora } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
+import { LanguageProvider } from '@/context/language-context'
+import './globals.css'
+
+const inter = Inter({ 
+  subsets: ["latin"],
+  variable: '--font-inter'
+})
+
+const sora = Sora({
+  subsets: ["latin"],
+  variable: '--font-sora'
+})
+
+export const metadata: Metadata = {
+  title: 'HCS Trading LLC | Connecting Global Brands Across the Americas',
+  description: 'HCS Trading LLC specializes in electronics and global supply solutions, representing and distributing international brands across the Americas through reliable partnerships, strategic logistics, and industry expertise.',
+  keywords: ['electronics', 'global supply', 'distribution', 'Americas', 'networking solutions', 'CCTV', 'security systems'],
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="en" className="bg-white">
+      <body className={`${inter.variable} ${sora.variable} font-sans antialiased`}>
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
+        {process.env.NODE_ENV === 'production' && <Analytics />}
+      </body>
+    </html>
+  )
+}
