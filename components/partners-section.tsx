@@ -11,7 +11,7 @@ export function PartnersSection() {
       name: "BenQ",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 140 60" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 140 60" className="h-12 w-auto transition-all duration-300">
           <path 
             d="M 12,30 C 12,16 32,8 70,8 C 108,8 128,18 128,32 C 128,46 104,52 65,52 C 30,52 12,44 12,30 Z" 
             className="fill-gray-300 transition-colors duration-300 group-hover:fill-[#562873]" 
@@ -24,7 +24,7 @@ export function PartnersSection() {
       name: "D-Link",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 140 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 140 50" className="h-12 w-auto transition-all duration-300">
           <text 
             x="70" 
             y="36" 
@@ -40,7 +40,7 @@ export function PartnersSection() {
       name: "Brinno",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 140 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 140 50" className="h-12 w-auto transition-all duration-300">
           <text 
             x="10" 
             y="36" 
@@ -59,7 +59,7 @@ export function PartnersSection() {
       name: "EZVIZ",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 145 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 145 50" className="h-12 w-auto transition-all duration-300">
           <g transform="translate(25, 25)">
             {/* Blue petal (top-left) */}
             <path d="M-3,-3 C-10,-12 -18,-5 -11,2 C-7,5 -3,1 -3,-3 Z" className="fill-gray-300 transition-colors duration-300 group-hover:fill-[#00A4E4]" />
@@ -84,7 +84,7 @@ export function PartnersSection() {
       name: "Gusto",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 140 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 140 50" className="h-12 w-auto transition-all duration-300">
           <text 
             x="70" 
             y="28" 
@@ -108,7 +108,7 @@ export function PartnersSection() {
       name: "Hikvision",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 160 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 160 50" className="h-12 w-auto transition-all duration-300">
           <text x="10" y="32" className="text-[24px] font-sans font-black italic tracking-normal fill-gray-300 transition-colors duration-300 group-hover:fill-[#D90429]">HIK</text>
           <text x="56" y="32" className="text-[24px] font-sans font-bold italic tracking-normal fill-gray-300 transition-colors duration-300 group-hover:fill-[#4A4A4A]">VISION</text>
           <text x="10" y="44" className="text-[6px] font-sans font-semibold tracking-tighter fill-gray-300 transition-colors duration-300 group-hover:fill-gray-500">First Choice for Security Professionals</text>
@@ -119,7 +119,7 @@ export function PartnersSection() {
       name: "Intelbras",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 140 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 140 50" className="h-12 w-auto transition-all duration-300">
           <text x="70" y="34" textAnchor="middle" className="text-[28px] font-sans font-bold tracking-tight fill-gray-300 transition-colors duration-300 group-hover:fill-[#00A859]">intelbras</text>
         </svg>
       )
@@ -128,7 +128,7 @@ export function PartnersSection() {
       name: "Lanpro",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 160 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 160 50" className="h-12 w-auto transition-all duration-300">
           <g className="fill-gray-300 transition-colors duration-300 group-hover:fill-[#002F6C]">
             <path d="M 10,16 L 28,16 L 24,22 L 8,22 Z" />
             <path d="M 12,24 L 30,24 L 26,30 L 10,30 Z" />
@@ -143,7 +143,7 @@ export function PartnersSection() {
       name: "Tenda",
       hoverColor: "hover:scale-105",
       svg: (
-        <svg viewBox="0 0 140 50" className="h-10 w-auto transition-all duration-300">
+        <svg viewBox="0 0 140 50" className="h-12 w-auto transition-all duration-300">
           <text x="70" y="35" textAnchor="middle" className="text-[34px] font-sans font-black tracking-tighter italic fill-gray-300 transition-colors duration-300 group-hover:fill-[#FF5000]">Tenda</text>
         </svg>
       )
@@ -176,7 +176,7 @@ export function PartnersSection() {
           {doublePartners.map((partner, index) => (
             <div
               key={index}
-              className={`w-[180px] sm:w-[220px] flex-shrink-0 flex items-center justify-center px-6 text-gray-400 transition-all duration-300 group cursor-pointer ${partner.hoverColor}`}
+              className={`w-[140px] sm:w-[180px] flex-shrink-0 flex items-center justify-center px-3 text-gray-400 transition-all duration-300 group cursor-pointer ${partner.hoverColor}`}
             >
               {partner.svg}
             </div>

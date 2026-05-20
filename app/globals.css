@@ -61,7 +61,7 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --animate-infinite-scroll: scroll 40s linear infinite;
+  --animate-infinite-scroll: scroll 20s linear infinite;
 
   @keyframes scroll {
     0% {
