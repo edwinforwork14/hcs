@@ -20,11 +20,11 @@ export function WhyHCSSection() {
         </div>
 
         {/* Advantages Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8 justify-items-center">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
           {whyHcsConfig.map((advantage, index) => (
             <div 
               key={index}
-              className="text-center group"
+              className={`text-center group ${index === whyHcsConfig.length - 1 ? 'col-span-2 md:col-span-1 lg:col-span-1' : ''}`}
             >
               <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#FF4D6A] via-[#D90429] to-[#800010] flex items-center justify-center mb-4 shadow-lg shadow-[#D90429]/30 border border-white/10 group-hover:scale-110 group-hover:shadow-[#D90429]/50 transition-all duration-300">
                 <advantage.icon className="w-7 h-7 text-white filter drop-shadow-sm" strokeWidth={2} />
