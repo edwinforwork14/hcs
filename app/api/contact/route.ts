@@ -16,9 +16,18 @@ export async function POST(request: Request) {
       )
     }
 
+    // Check if API key is available
+    if (!process.env.RESEND_API_KEY) {
+      console.error("RESEND_API_KEY is not configured")
+      return NextResponse.json(
+        { error: "Email service not configured" },
+        { status: 500 }
+      )
+    }
+
     // Send email using Resend
     const { data, error } = await resend.emails.send({
-      from: "HCS Contact Form <onboarding@resend.dev>",
+      from: "HCS Contact Form <noreply@contact.hcstrading.org>",
       to: ["hsinyihca@gmail.com"],
       subject: `New Contact Form Submission from ${fullName}`,
       html: `
@@ -42,7 +51,7 @@ export async function POST(request: Request) {
     if (error) {
       console.error("Resend error:", error)
       return NextResponse.json(
-        { error: "Failed to send email" },
+        { error: error.message || "Failed to send email" },
         { status: 500 }
       )
     }
@@ -53,8 +62,9 @@ export async function POST(request: Request) {
     )
   } catch (error) {
     console.error("Contact form error:", error)
+    const errorMessage = error instanceof Error ? error.message : "Internal server error"
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: errorMessage },
       { status: 500 }
     )
   }
