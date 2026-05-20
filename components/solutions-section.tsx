@@ -1,37 +1,17 @@
 "use client"
 
-import { Monitor, Wifi, Shield, Boxes, ArrowRight } from "lucide-react"
+import { ArrowRight } from "lucide-react"
+import { useState } from "react"
 import { useLanguage } from "@/context/language-context"
+import { solutionsConfig } from "@/config/solutions.config"
 
 export function SolutionsSection() {
   const { t } = useLanguage()
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({})
 
-  const solutions = [
-    {
-      icon: Monitor,
-      titleKey: "solutions.electronics",
-      descKey: "solutions.electronicsDesc",
-      image: "/images/electronics.jpg",
-    },
-    {
-      icon: Wifi,
-      titleKey: "solutions.networking",
-      descKey: "solutions.networkingDesc",
-      image: "/images/networking.jpg",
-    },
-    {
-      icon: Shield,
-      titleKey: "solutions.security",
-      descKey: "solutions.securityDesc",
-      image: "/images/security.jpg",
-    },
-    {
-      icon: Boxes,
-      titleKey: "solutions.globalSupply",
-      descKey: "solutions.globalSupplyDesc",
-      image: "/images/global-supply.png",
-    },
-  ]
+  const toggleCard = (id: string) => {
+    setExpandedCards(prev => ({ ...prev, [id]: !prev[id] }))
+  }
 
   return (
     <section id="solutions" className="py-20 lg:py-28 bg-[#0A0A0A]">
@@ -48,42 +28,58 @@ export function SolutionsSection() {
 
         {/* Solutions Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {solutions.map((solution, index) => (
-            <div 
-              key={index}
-              className="group relative bg-white/5 backdrop-blur-xl rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(217,4,41,0.15)] hover:-translate-y-1 flex flex-col h-full"
-            >
-              {/* Image */}
-              <div className="aspect-[4/3] relative overflow-hidden">
-                <img
-                  src={solution.image}
-                  alt={t(solution.titleKey)}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                
-                {/* Icon Badge */}
-                <div className="absolute bottom-4 left-4">
-                  <div className="w-12 h-12 rounded-lg bg-[#D90429] flex items-center justify-center shadow-lg shadow-[#D90429]/30">
-                    <solution.icon className="w-6 h-6 text-white" />
+          {solutionsConfig.map((solution) => {
+            const isExpanded = expandedCards[solution.id] || false
+            return (
+              <div 
+                key={solution.id}
+                className="group relative bg-white/5 backdrop-blur-xl rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(217,4,41,0.15)] hover:-translate-y-1 flex flex-col h-full"
+              >
+                {/* Image */}
+                <div className="aspect-[4/3] relative overflow-hidden">
+                  <img
+                    src={solution.image}
+                    alt={t(solution.titleKey)}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  
+                  {/* Icon Badge */}
+                  <div className="absolute bottom-4 left-4">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#FF4D6A] via-[#D90429] to-[#800010] flex items-center justify-center shadow-lg shadow-[#D90429]/30 border border-white/10">
+                      <solution.icon className="w-6 h-6 text-white filter drop-shadow-sm" />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Content */}
-              <div className="p-6 bg-gradient-to-b from-white/5 to-transparent flex flex-col flex-grow">
-                <h3 className="text-xl lg:text-2xl font-semibold text-white mb-2 font-[family-name:var(--font-sora)]">
-                  {t(solution.titleKey)}
-                </h3>
-                <p className="text-lg text-gray-200 mb-4 leading-relaxed">
-                  {t(solution.descKey)}
-                </p>
-                <button className="flex items-center text-[#D90429] text-base font-medium group-hover:gap-2 transition-all mt-auto pt-4">
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                {/* Content */}
+                <div className="p-6 bg-gradient-to-b from-white/5 to-transparent flex flex-col flex-grow">
+                  <h3 className="text-xl lg:text-2xl font-semibold text-white mb-2 font-[family-name:var(--font-sora)] min-h-[3.5rem]">
+                    {t(solution.titleKey)}
+                  </h3>
+                  <p className={`text-lg text-gray-200 leading-relaxed transition-all duration-300 ${isExpanded ? '' : 'line-clamp-2'}`}>
+                    {t(solution.descKey)}
+                  </p>
+                  {!isExpanded && (
+                    <button
+                      onClick={() => toggleCard(solution.id)}
+                      className="text-gray-400 hover:text-white text-2xl leading-none tracking-widest mt-1 text-left cursor-pointer transition-colors"
+                      aria-label="Show more"
+                    >
+                      •••
+                    </button>
+                  )}
+                  <a 
+                    href={solution.href} 
+                    className="flex items-center text-[#D90429] text-base font-medium group-hover:gap-2 transition-all mt-auto pt-4"
+                    aria-label={`Learn more about ${t(solution.titleKey)}`}
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                  </a>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>

@@ -1,20 +1,32 @@
 import { NextResponse } from "next/server"
 import { Resend } from "resend"
+import { z } from "zod"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+const contactSchema = z.object({
+  fullName: z.string().min(2, "Name is too short").max(100),
+  email: z.string().email("Invalid email address"),
+  company: z.string().max(100).optional(),
+  phone: z.string().max(30).optional(),
+  message: z.string().min(10, "Message must be at least 10 characters").max(2000),
+})
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { fullName, email, company, phone, message } = body
-
+    
     // Validate required fields
-    if (!fullName || !email || !message) {
+    const result = contactSchema.safeParse(body)
+    
+    if (!result.success) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Invalid form data", details: result.error.format() },
         { status: 400 }
       )
     }
+
+    const { fullName, email, company, phone, message } = result.data
 
     // Check if API key is available
     if (!process.env.RESEND_API_KEY) {
@@ -25,10 +37,21 @@ export async function POST(request: Request) {
       )
     }
 
+    // Use environment variable for recipient
+    const recipientEmail = process.env.CONTACT_RECIPIENT_EMAIL
+
+    if (!recipientEmail) {
+      console.error("CONTACT_RECIPIENT_EMAIL is not configured")
+      return NextResponse.json(
+        { error: "Recipient not configured" },
+        { status: 500 }
+      )
+    }
+
     // Send email using Resend
     const { data, error } = await resend.emails.send({
       from: "HCS Contact Form <noreply@contact.hcstrading.org>",
-      to: ["hsinyihca@gmail.com"],
+      to: [recipientEmail],
       subject: `New Contact Form Submission from ${fullName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -40,7 +63,7 @@ export async function POST(request: Request) {
           <p><strong>Phone:</strong> ${phone || "Not provided"}</p>
           <hr style="border: 1px solid #eee;" />
           <h3>Message:</h3>
-          <p style="background: #f5f5f5; padding: 15px; border-radius: 8px;">${message}</p>
+          <p style="background: #f5f5f5; padding: 15px; border-radius: 8px; white-space: pre-wrap;">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
           <hr style="border: 1px solid #eee;" />
           <p style="color: #666; font-size: 12px;">This email was sent from the HCS Trading website contact form.</p>
         </div>
@@ -51,7 +74,7 @@ export async function POST(request: Request) {
     if (error) {
       console.error("Resend error:", error)
       return NextResponse.json(
-        { error: error.message || "Failed to send email" },
+        { error: "Failed to send email" },
         { status: 500 }
       )
     }
@@ -62,9 +85,8 @@ export async function POST(request: Request) {
     )
   } catch (error) {
     console.error("Contact form error:", error)
-    const errorMessage = error instanceof Error ? error.message : "Internal server error"
     return NextResponse.json(
-      { error: errorMessage },
+      { error: "Internal server error" },
       { status: 500 }
     )
   }

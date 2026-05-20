@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Linkedin, Instagram, Mail, Phone, MessageCircle } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
+import { siteConfig } from "@/config/site.config"
 
 export function Footer() {
   const { t } = useLanguage()
@@ -40,14 +41,20 @@ export function Footer() {
             </p>
             <div className="mt-4 flex items-center gap-3">
               <a 
-                href="#" 
+                href={siteConfig.social.linkedin.url} 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D90429] transition-all duration-300"
+                aria-label="LinkedIn"
               >
                 <Linkedin className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
               </a>
               <a 
-                href="#" 
+                href={siteConfig.social.instagram.url} 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D90429] transition-all duration-300"
+                aria-label="Instagram"
               >
                 <Instagram className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
               </a>
@@ -94,33 +101,33 @@ export function Footer() {
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm text-gray-400">
                 <Mail className="w-4 h-4 text-[#D90429] shrink-0" />
-                <span>info@hcstradingllc.org</span>
+                <span>{siteConfig.email}</span>
               </li>
               <li className="flex items-start gap-2 text-sm text-gray-400">
                 <Phone className="w-4 h-4 text-[#D90429] shrink-0 mt-0.5" />
                 <div className="flex flex-col">
-                  <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">USA</span>
+                  <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">{siteConfig.phones.usa.label}</span>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <img 
-                      src="/images/us.svg" 
-                      alt="USA Flag" 
+                      src={siteConfig.phones.usa.flag} 
+                      alt={`${siteConfig.phones.usa.label} Flag`} 
                       className="w-4 h-3 object-cover rounded-[1px] border border-white/10"
                     />
-                    <span>+1 832 650 6647</span>
+                    <span>{siteConfig.phones.usa.number}</span>
                   </div>
                 </div>
               </li>
               <li className="flex items-start gap-2 text-sm text-gray-400">
                 <MessageCircle className="w-4 h-4 text-[#D90429] shrink-0 mt-0.5" />
                 <div className="flex flex-col">
-                  <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">WhatsApp</span>
+                  <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">{siteConfig.phones.venezuela.label}</span>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <img 
-                      src="/images/ve.svg" 
-                      alt="Venezuela Flag" 
+                      src={siteConfig.phones.venezuela.flag} 
+                      alt={`${siteConfig.phones.venezuela.label} Flag`} 
                       className="w-4 h-3 object-cover rounded-[1px] border border-white/10"
                     />
-                    <span>+58 412 300 0970</span>
+                    <span>{siteConfig.phones.venezuela.number}</span>
                   </div>
                 </div>
               </li>
@@ -131,7 +138,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <p className="text-xs text-gray-400">
-            © 2026 <span className="text-[#D90429] font-medium">HCS Trading</span>. {t("footer.rights")}
+            © {siteConfig.copyrightYear} <span className="text-[#D90429] font-medium">{siteConfig.shortName}</span>. {t("footer.rights")}
           </p>
           
           <p className="text-xs text-gray-400 flex items-center gap-1">

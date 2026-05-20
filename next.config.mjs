@@ -9,7 +9,7 @@ const nextConfig = {
     root: path.join(__dirname),
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // strict types enabled
   },
   images: {
     unoptimized: true,

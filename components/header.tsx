@@ -4,7 +4,6 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { LanguageToggle } from "@/components/language-toggle"
 import { useLanguage } from "@/context/language-context"
 
 export function Header() {
@@ -21,16 +20,16 @@ export function Header() {
   ]
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
+    <header className="absolute top-0 left-0 right-0 z-50 bg-[#0A0A0A]">
       <div className="mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
         <div className="flex h-20 items-start pt-5">
           {/* Logo */}
           <Link href="/" className="flex items-center flex-1">
-            <div className="flex flex-col">
-              <span className="text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
+            <div className="flex flex-col items-start">
+              <span className="text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)] leading-none">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
               </span>
-              <span className="text-[11px] tracking-widest text-gray-500 uppercase font-semibold">Trading</span>
+              <span className="text-[8.5px] tracking-[0.18em] text-gray-400 uppercase font-semibold mt-1 whitespace-nowrap">Global Representation</span>
             </div>
           </Link>
 
@@ -54,9 +53,8 @@ export function Header() {
             })}
           </nav>
 
-          {/* Language Toggle & CTA Button */}
+          {/* CTA Button */}
           <div className="hidden lg:flex gap-4 flex-1 justify-end pt-1">
-            <LanguageToggle />
             <Button asChild className="bg-[#D90429] hover:bg-[#B80324] text-white rounded-md px-5 py-2 text-sm font-semibold cursor-pointer">
               <Link href="#contact">
                 {t("nav.contactUs")}
@@ -67,7 +65,6 @@ export function Header() {
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden gap-3 pt-1">
-            <LanguageToggle />
             <button
               className="text-white"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

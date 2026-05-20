@@ -1,38 +1,10 @@
 "use client"
 
-import { Globe, Truck, Handshake, Lightbulb, Target } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
+import { whyHcsConfig } from "@/config/why-hcs.config"
 
 export function WhyHCSSection() {
   const { t } = useLanguage()
-
-  const advantages = [
-    {
-      icon: Globe,
-      titleKey: "whyHcs.panAmerican",
-      descKey: "whyHcs.panAmericanDesc",
-    },
-    {
-      icon: Truck,
-      titleKey: "whyHcs.reliable",
-      descKey: "whyHcs.reliableDesc",
-    },
-    {
-      icon: Handshake,
-      titleKey: "whyHcs.trusted",
-      descKey: "whyHcs.trustedDesc",
-    },
-    {
-      icon: Lightbulb,
-      titleKey: "whyHcs.expertise",
-      descKey: "whyHcs.expertiseDesc",
-    },
-    {
-      icon: Target,
-      titleKey: "whyHcs.businessFocused",
-      descKey: "whyHcs.businessFocusedDesc",
-    },
-  ]
 
   return (
     <section id="why-hcs" className="py-20 lg:py-28 bg-white">
@@ -49,7 +21,7 @@ export function WhyHCSSection() {
 
         {/* Advantages Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
-          {advantages.map((advantage, index) => (
+          {whyHcsConfig.map((advantage, index) => (
             <div 
               key={index}
               className="text-center group"
