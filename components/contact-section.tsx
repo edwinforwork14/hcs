@@ -5,13 +5,14 @@ import { Mail, Phone, ArrowRight, MessageCircle, CheckCircle, AlertCircle, Loade
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLanguage } from "@/context/language-context"
+import { useToast } from "@/hooks/use-toast"
 
 type FormStatus = "idle" | "loading" | "success" | "error"
 
 export function ContactSection() {
   const { t } = useLanguage()
+  const { toast } = useToast()
   const [formStatus, setFormStatus] = useState<FormStatus>("idle")
-  const [errorMessage, setErrorMessage] = useState("")
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -29,7 +30,6 @@ export function ContactSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormStatus("loading")
-    setErrorMessage("")
 
     try {
       const response = await fetch("/api/contact", {
@@ -46,17 +46,21 @@ export function ContactSection() {
         throw new Error(data.error || "Failed to send message")
       }
 
-      setFormStatus("success")
+      toast({
+        title: "Message sent successfully!",
+        description: "We will get back to you soon.",
+        variant: "default",
+      })
+      
       setFormData({ fullName: "", email: "", company: "", message: "" })
-      
-      // Reset to idle after 5 seconds
-      setTimeout(() => setFormStatus("idle"), 5000)
+      setFormStatus("idle")
     } catch (error) {
-      setFormStatus("error")
-      setErrorMessage(error instanceof Error ? error.message : "Something went wrong")
-      
-      // Reset to idle after 5 seconds
-      setTimeout(() => setFormStatus("idle"), 5000)
+      toast({
+        title: "Failed to send message",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      })
+      setFormStatus("idle")
     }
   }
 
@@ -140,23 +144,6 @@ export function ContactSection() {
                 rows={4}
                 className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-gray-500 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#D90429]/20 focus:border-[#D90429]/50 disabled:opacity-50 min-h-[120px]"
               />
-              
-              {/* Status Messages - Fixed height to prevent layout shift */}
-              <div className={`transition-all duration-300 ${formStatus === "success" || formStatus === "error" ? "opacity-100 max-h-24" : "opacity-0 max-h-0 overflow-hidden"}`}>
-                {formStatus === "success" && (
-                  <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-3 rounded-lg">
-                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-sm">Message sent successfully! We will get back to you soon.</span>
-                  </div>
-                )}
-                
-                {formStatus === "error" && (
-                  <div className="flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-3 rounded-lg">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    <span className="text-sm">{errorMessage || "Failed to send message. Please try again."}</span>
-                  </div>
-                )}
-              </div>
 
               <Button 
                 type="submit"

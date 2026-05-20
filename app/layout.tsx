@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Sora } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/language-context'
+import { ToastProvider, ToastViewport } from '@/components/ui/toast'
 import './globals.css'
 
 const inter = Inter({ 
@@ -28,9 +29,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-white">
       <body className={`${inter.variable} ${sora.variable} font-sans antialiased`}>
-        <LanguageProvider>
-          {children}
-        </LanguageProvider>
+        <ToastProvider>
+          <ToastViewport />
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
+        </ToastProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
