@@ -27,10 +27,10 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center flex-shrink-0">
             <div className="flex flex-col">
-              <span className="text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
+              <span className="text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
               </span>
-              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold">Trading</span>
+              <span className="text-[11px] tracking-widest text-gray-500 uppercase font-semibold">Trading</span>
             </div>
           </Link>
 
