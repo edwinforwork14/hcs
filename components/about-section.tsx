@@ -42,7 +42,7 @@ export function AboutSection() {
           </div>
 
           {/* Right Content */}
-          <div>
+          <div className="flex flex-col">
             <span className="text-lg lg:text-xl font-semibold tracking-widest uppercase bg-gradient-to-r from-[#B80324] via-[#D90429] to-[#FF4D6A] bg-clip-text text-transparent">
               {t("about.label")}
             </span>
@@ -52,21 +52,21 @@ export function AboutSection() {
             <p className="mt-6 text-lg lg:text-xl text-black leading-relaxed font-normal">
               {t("about.description")}
             </p>
-          </div>
-        </div>
 
-        {/* Stats */}
-        <div className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {stats.map((stat, index) => (
-            <div 
-              key={index} 
-              className="bg-white border border-gray-100 rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-            >
-              <stat.icon className="h-8 w-8 mx-auto text-[#D90429] mb-3" />
-              <p className="text-3xl lg:text-4xl font-extrabold text-[#D90429]">{stat.value}</p>
-              <p className="text-sm font-medium text-gray-500 mt-1">{stat.label}</p>
+            {/* Stats */}
+            <div className="mt-10 grid grid-cols-3 gap-4">
+              {stats.map((stat, index) => (
+                <div 
+                  key={index} 
+                  className="bg-white border border-gray-100 rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                >
+                  <stat.icon className="h-6 w-6 mx-auto text-[#D90429] mb-2" />
+                  <p className="text-2xl lg:text-3xl font-extrabold text-[#D90429]">{stat.value}</p>
+                  <p className="text-xs font-medium text-gray-500 mt-1">{stat.label}</p>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>
