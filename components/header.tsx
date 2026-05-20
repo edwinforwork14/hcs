@@ -24,20 +24,20 @@ export function Header() {
     <header className="absolute top-0 left-0 right-0 z-50 bg-transparent">
       <div className="mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
         <div className="flex h-20 items-center justify-between">
-          {/* Logo - Left */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="flex flex-col leading-none">
+          {/* Logo */}
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <div className="flex flex-col">
               <span className="text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
               </span>
-              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold mt-0.5">Trading</span>
-            </Link>
-          </div>
+              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold">Trading</span>
+            </div>
+          </Link>
 
-          {/* Desktop Navigation - Center */}
-          <nav className="hidden lg:flex items-center gap-8">
+          {/* Desktop Navigation - Centered */}
+          <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
             {navLinks.map((link, index) => {
-              const isActive = index === 0
+              const isActive = index === 0 // Home is active by default
               return (
                 <Link
                   key={link.label}
@@ -54,8 +54,8 @@ export function Header() {
             })}
           </nav>
 
-          {/* Language Toggle & CTA Button - Right */}
-          <div className="flex-shrink-0 flex items-center gap-4">
+          {/* Language Toggle & CTA Button */}
+          <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
             <LanguageToggle />
             <Button asChild className="bg-[#D90429] hover:bg-[#B80324] text-white rounded-md px-5 py-2 text-sm font-semibold cursor-pointer">
               <Link href="#contact">
