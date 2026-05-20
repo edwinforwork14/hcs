@@ -1,17 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, Phone, ArrowRight, MessageCircle, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
+import { Mail, Phone, ArrowRight, MessageCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLanguage } from "@/context/language-context"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 
-type FormStatus = "idle" | "loading" | "success" | "error"
+type FormStatus = "idle" | "loading"
 
 export function ContactSection() {
   const { t } = useLanguage()
-  const { toast } = useToast()
   const [formStatus, setFormStatus] = useState<FormStatus>("idle")
   const [formData, setFormData] = useState({
     fullName: "",
@@ -46,30 +45,23 @@ export function ContactSection() {
         throw new Error(data.error || "Failed to send message")
       }
 
-      toast({
-        title: "Message sent successfully!",
-        description: "We will get back to you soon.",
-        variant: "default",
-      })
-      
+      setFormStatus("idle")
       setFormData({ fullName: "", email: "", company: "", message: "" })
-      setFormStatus("idle")
+      
+      toast.success(t("contact.toastSuccess") || "Message sent! We will get back to you soon.")
     } catch (error) {
-      toast({
-        title: "Failed to send message",
-        description: error instanceof Error ? error.message : "Please try again.",
-        variant: "destructive",
-      })
       setFormStatus("idle")
+      
+      toast.error(t("contact.toastError") || (error instanceof Error ? error.message : "Failed to send message. Please try again."))
     }
   }
 
   return (
-    <section id="contact" className="py-16 lg:py-20 bg-[#F8F8F8] relative overflow-hidden">
+    <section id="contact" className="py-16 lg:py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-start">
           {/* Left - Contact Info Card */}
-          <div className="bg-[#0A0A0A] rounded-2xl p-8 lg:p-10 border border-white/10 shadow-xl flex flex-col">
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col">
             <span className="text-base lg:text-lg font-semibold tracking-widest uppercase bg-gradient-to-r from-[#B80324] via-[#D90429] to-[#FF4D6A] bg-clip-text text-transparent">
               {t("contact.label")}
             </span>
@@ -103,8 +95,8 @@ export function ContactSection() {
           </div>
 
           {/* Right - Contact Form Card */}
-          <div className="bg-[#0A0A0A] rounded-2xl p-8 lg:p-10 border border-white/10 shadow-xl flex flex-col">
-            <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col min-h-[400px]">
+            <form onSubmit={handleSubmit} className="space-y-4 flex flex-col h-full">
               <Input
                 type="text"
                 name="fullName"
@@ -148,7 +140,7 @@ export function ContactSection() {
               <Button 
                 type="submit"
                 disabled={formStatus === "loading"}
-                className="w-full bg-gradient-to-r from-[#D90429] to-[#FF4D6A] hover:from-[#B80324] hover:to-[#D90429] text-white rounded-lg px-8 py-3 h-12 text-base font-semibold transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-[#D90429] to-[#FF4D6A] hover:from-[#B80324] hover:to-[#D90429] hover:scale-[1.02] active:scale-[0.98] text-white rounded-lg px-8 py-3 h-12 text-base font-semibold transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
               >
                 {formStatus === "loading" ? (
                   <>

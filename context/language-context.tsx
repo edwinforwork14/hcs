@@ -88,6 +88,8 @@ const translations = {
     "contact.phone": "Phone Number",
     "contact.message": "Your Message",
     "contact.send": "Send Message",
+    "contact.toastSuccess": "Message sent! We will get back to you soon.",
+    "contact.toastError": "Failed to send message. Please try again.",
 
     // Footer
     "footer.tagline": "Connecting global brands with opportunities across the Americas.",
@@ -175,6 +177,8 @@ const translations = {
     "contact.phone": "Número de Teléfono",
     "contact.message": "Su Mensaje",
     "contact.send": "Enviar Mensaje",
+    "contact.toastSuccess": "¡Mensaje enviado! Nos pondremos en contacto pronto.",
+    "contact.toastError": "Error al enviar el mensaje. Por favor intente de nuevo.",
 
     // Footer
     "footer.tagline": "Conectando marcas globales con oportunidades en las Américas.",
