@@ -100,7 +100,7 @@ export function ContactSection() {
 
           {/* Right - Contact Form Card */}
           <div className="bg-[#0A0A0A] rounded-2xl p-8 lg:p-10 border border-white/10 shadow-xl flex flex-col">
-            <form onSubmit={handleSubmit} className="space-y-4 flex-1 flex flex-col">
+            <form onSubmit={handleSubmit} className="space-y-4 flex flex-col">
               <Input
                 type="text"
                 name="fullName"
@@ -138,28 +138,30 @@ export function ContactSection() {
                 required
                 disabled={formStatus === "loading"}
                 rows={4}
-                className="w-full flex-1 min-h-[100px] px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-gray-500 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#D90429]/20 focus:border-[#D90429]/50 disabled:opacity-50"
+                className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-gray-500 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#D90429]/20 focus:border-[#D90429]/50 disabled:opacity-50 min-h-[120px]"
               />
               
-              {/* Status Messages */}
-              {formStatus === "success" && (
-                <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-3 rounded-lg">
-                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm">Message sent successfully! We will get back to you soon.</span>
-                </div>
-              )}
-              
-              {formStatus === "error" && (
-                <div className="flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-3 rounded-lg">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  <span className="text-sm">{errorMessage || "Failed to send message. Please try again."}</span>
-                </div>
-              )}
+              {/* Status Messages - Fixed height to prevent layout shift */}
+              <div className={`transition-all duration-300 ${formStatus === "success" || formStatus === "error" ? "opacity-100 max-h-24" : "opacity-0 max-h-0 overflow-hidden"}`}>
+                {formStatus === "success" && (
+                  <div className="flex items-center gap-2 text-green-400 bg-green-400/10 px-4 py-3 rounded-lg">
+                    <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                    <span className="text-sm">Message sent successfully! We will get back to you soon.</span>
+                  </div>
+                )}
+                
+                {formStatus === "error" && (
+                  <div className="flex items-center gap-2 text-red-400 bg-red-400/10 px-4 py-3 rounded-lg">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <span className="text-sm">{errorMessage || "Failed to send message. Please try again."}</span>
+                  </div>
+                )}
+              </div>
 
               <Button 
                 type="submit"
                 disabled={formStatus === "loading"}
-                className="w-full bg-gradient-to-r from-[#D90429] to-[#FF4D6A] hover:from-[#B80324] hover:to-[#D90429] text-white rounded-lg px-8 py-3 h-12 text-base font-semibold transition-all duration-300 mt-auto disabled:opacity-70 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-[#D90429] to-[#FF4D6A] hover:from-[#B80324] hover:to-[#D90429] text-white rounded-lg px-8 py-3 h-12 text-base font-semibold transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {formStatus === "loading" ? (
                   <>
