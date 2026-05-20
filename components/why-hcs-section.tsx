@@ -48,22 +48,12 @@ export function WhyHCSSection() {
         </div>
 
         {/* Advantages Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-5 gap-6 lg:gap-8">
+        <div className="flex flex-wrap justify-center gap-6 lg:gap-8">
           {advantages.map((advantage, index) => {
-            // Precise column layout to center items beautifully when they don't fill a full row
-            let columnClass = "col-span-1 md:col-span-2 lg:col-span-1"
-            if (index === 3) {
-              // 4th item starts at column 2 on tablet to center the bottom row of 2 items
-              columnClass = "col-span-1 md:col-span-2 md:col-start-2 lg:col-span-1 lg:col-start-auto"
-            } else if (index === 4) {
-              // 5th item spans 2 columns on mobile to center itself in the last row
-              columnClass = "col-span-2 md:col-span-2 lg:col-span-1"
-            }
-
             return (
               <div 
                 key={index}
-                className={`text-center ${columnClass}`}
+                className="w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:flex-1 lg:min-w-0 text-center"
               >
                 <div className="w-16 h-16 mx-auto rounded-lg bg-[#FEE2E2] flex items-center justify-center mb-4">
                   <advantage.icon className="w-8 h-8 text-[#D90429]" />
