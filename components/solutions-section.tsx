@@ -1,6 +1,6 @@
 "use client"
 
-import { Monitor, Wifi, Shield, Dumbbell, ArrowRight } from "lucide-react"
+import { Monitor, Wifi, Shield, Boxes, ArrowRight } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
 
 export function SolutionsSection() {
@@ -26,16 +26,16 @@ export function SolutionsSection() {
       image: "/images/security.jpg",
     },
     {
-      icon: Dumbbell,
-      titleKey: "solutions.sports",
-      descKey: "solutions.sportsDesc",
-      image: "/images/sports.jpg",
+      icon: Boxes,
+      titleKey: "solutions.globalSupply",
+      descKey: "solutions.globalSupplyDesc",
+      image: "/images/global-supply.png",
     },
   ]
 
   return (
     <section id="solutions" className="py-20 lg:py-28 bg-[#0A0A0A]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
         {/* Header */}
         <div className="text-center mb-14">
           <span className="text-lg lg:text-xl font-semibold tracking-widest uppercase bg-gradient-to-r from-[#B80324] via-[#D90429] to-[#FF4D6A] bg-clip-text text-transparent">
@@ -51,7 +51,7 @@ export function SolutionsSection() {
           {solutions.map((solution, index) => (
             <div 
               key={index}
-              className="group relative bg-white/5 backdrop-blur-xl rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(217,4,41,0.15)] hover:-translate-y-1"
+              className="group relative bg-white/5 backdrop-blur-xl rounded-xl overflow-hidden border border-white/10 hover:border-white/20 transition-all duration-300 shadow-[0_8px_32px_rgba(0,0,0,0.4)] hover:shadow-[0_16px_48px_rgba(217,4,41,0.15)] hover:-translate-y-1 flex flex-col h-full"
             >
               {/* Image */}
               <div className="aspect-[4/3] relative overflow-hidden">
@@ -71,14 +71,14 @@ export function SolutionsSection() {
               </div>
 
               {/* Content */}
-              <div className="p-6 bg-gradient-to-b from-white/5 to-transparent">
+              <div className="p-6 bg-gradient-to-b from-white/5 to-transparent flex flex-col flex-grow">
                 <h3 className="text-xl lg:text-2xl font-semibold text-white mb-2 font-[family-name:var(--font-sora)]">
                   {t(solution.titleKey)}
                 </h3>
                 <p className="text-lg text-gray-200 mb-4 leading-relaxed">
                   {t(solution.descKey)}
                 </p>
-                <button className="flex items-center text-[#D90429] text-base font-medium group-hover:gap-2 transition-all">
+                <button className="flex items-center text-[#D90429] text-base font-medium group-hover:gap-2 transition-all mt-auto pt-4">
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>

@@ -36,7 +36,7 @@ export function WhyHCSSection() {
 
   return (
     <section id="why-hcs" className="py-20 lg:py-28 bg-white">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
         {/* Header */}
         <div className="text-center mb-14">
           <span className="text-lg lg:text-xl font-semibold tracking-widest uppercase bg-gradient-to-r from-[#B80324] via-[#D90429] to-[#FF4D6A] bg-clip-text text-transparent">
@@ -48,25 +48,23 @@ export function WhyHCSSection() {
         </div>
 
         {/* Advantages Grid */}
-        <div className="flex flex-wrap justify-center gap-6 lg:gap-8">
-          {advantages.map((advantage, index) => {
-            return (
-              <div 
-                key={index}
-                className="w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:flex-1 lg:min-w-0 text-center"
-              >
-                <div className="w-16 h-16 mx-auto rounded-lg bg-[#FEE2E2] flex items-center justify-center mb-4">
-                  <advantage.icon className="w-8 h-8 text-[#D90429]" />
-                </div>
-                <h3 className="text-xl lg:text-2xl font-semibold text-[#0A0A0A] mb-2">
-                  {t(advantage.titleKey)}
-                </h3>
-                <p className="text-lg lg:text-xl text-black leading-relaxed font-normal">
-                  {t(advantage.descKey)}
-                </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
+          {advantages.map((advantage, index) => (
+            <div 
+              key={index}
+              className="text-center group"
+            >
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#FF4D6A] via-[#D90429] to-[#800010] flex items-center justify-center mb-4 shadow-lg shadow-[#D90429]/30 border border-white/10 group-hover:scale-110 group-hover:shadow-[#D90429]/50 transition-all duration-300">
+                <advantage.icon className="w-7 h-7 text-white filter drop-shadow-sm" strokeWidth={2} />
               </div>
-            )
-          })}
+              <h3 className="text-base lg:text-lg font-bold text-[#0A0A0A] mb-2 font-[family-name:var(--font-sora)]">
+                {t(advantage.titleKey)}
+              </h3>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-700 leading-relaxed font-normal px-1">
+                {t(advantage.descKey)}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

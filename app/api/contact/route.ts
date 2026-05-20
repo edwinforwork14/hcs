@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { fullName, email, company, message } = body
+    const { fullName, email, company, phone, message } = body
 
     // Validate required fields
     if (!fullName || !email || !message) {
@@ -28,11 +28,12 @@ export async function POST(request: Request) {
           <p><strong>Name:</strong> ${fullName}</p>
           <p><strong>Email:</strong> ${email}</p>
           <p><strong>Company:</strong> ${company || "Not provided"}</p>
+          <p><strong>Phone:</strong> ${phone || "Not provided"}</p>
           <hr style="border: 1px solid #eee;" />
           <h3>Message:</h3>
           <p style="background: #f5f5f5; padding: 15px; border-radius: 8px;">${message}</p>
           <hr style="border: 1px solid #eee;" />
-          <p style="color: #666; font-size: 12px;">This email was sent from the HCS Global website contact form.</p>
+          <p style="color: #666; font-size: 12px;">This email was sent from the HCS Trading website contact form.</p>
         </div>
       `,
       replyTo: email,

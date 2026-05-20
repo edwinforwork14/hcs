@@ -20,18 +20,20 @@ export function Footer() {
     { labelKey: "solutions.electronics", href: "#solutions" },
     { labelKey: "solutions.networking", href: "#solutions" },
     { labelKey: "solutions.security", href: "#solutions" },
-    { labelKey: "solutions.sports", href: "#solutions" },
+    { labelKey: "solutions.globalSupply", href: "#solutions" },
   ]
 
   return (
     <footer className="bg-[#0A0A0A] pt-12 pb-6">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-white/10">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex flex-col">
-              <span className="text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">HCS</span>
-              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold">Global Representation</span>
+              <span className="text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
+                HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
+              </span>
+              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold">Trading</span>
             </Link>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               {t("footer.tagline")}
@@ -98,14 +100,28 @@ export function Footer() {
                 <Phone className="w-4 h-4 text-[#D90429] shrink-0 mt-0.5" />
                 <div className="flex flex-col">
                   <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">USA</span>
-                  <span>+1 832 650 6647</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <img 
+                      src="/images/us.svg" 
+                      alt="USA Flag" 
+                      className="w-4 h-3 object-cover rounded-[1px] border border-white/10"
+                    />
+                    <span>+1 832 650 6647</span>
+                  </div>
                 </div>
               </li>
               <li className="flex items-start gap-2 text-sm text-gray-400">
                 <MessageCircle className="w-4 h-4 text-[#D90429] shrink-0 mt-0.5" />
                 <div className="flex flex-col">
                   <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">WhatsApp</span>
-                  <span>+58 412 300 0970</span>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <img 
+                      src="/images/ve.svg" 
+                      alt="Venezuela Flag" 
+                      className="w-4 h-3 object-cover rounded-[1px] border border-white/10"
+                    />
+                    <span>+58 412 300 0970</span>
+                  </div>
                 </div>
               </li>
             </ul>
@@ -113,10 +129,25 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
           <p className="text-xs text-gray-400">
-            © 2024 <span className="text-[#D90429] font-medium">HCS Global Representation</span>. {t("footer.rights")}
+            © 2026 <span className="text-[#D90429] font-medium">HCS Trading</span>. {t("footer.rights")}
           </p>
+          
+          <p className="text-xs text-gray-400 flex items-center gap-1">
+            <span>Powered with</span>
+            <span className="text-purple-500 animate-pulse">💜</span>
+            <span>by</span>
+            <a 
+              href="https://www.untitledtechcompany.io/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-gray-300 hover:text-purple-400 font-medium transition-all duration-200 hover:underline decoration-purple-500/40 underline-offset-4"
+            >
+              Untitled Tech Company
+            </a>
+          </p>
+
           <div className="flex items-center gap-6">
             <Link href="#" className="text-xs text-gray-400 hover:text-white transition-colors duration-200">
               {t("footer.privacy")}

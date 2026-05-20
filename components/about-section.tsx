@@ -26,7 +26,7 @@ export function AboutSection() {
 
   return (
     <section id="about" className="py-20 lg:py-28 bg-[#F8F8F8]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left - Global Network Map Image with hover zoom */}
           <div className="relative group cursor-pointer">
@@ -52,21 +52,21 @@ export function AboutSection() {
             <p className="mt-6 text-lg lg:text-xl text-black leading-relaxed font-normal">
               {t("about.description")}
             </p>
-
-            {/* Stats */}
-            <div className="mt-10 grid grid-cols-3 gap-4">
-              {stats.map((stat, index) => (
-                <div 
-                  key={index} 
-                  className="bg-white border border-gray-200 rounded-lg p-5 text-center"
-                >
-                  <stat.icon className="h-7 w-7 lg:h-8 lg:w-8 mx-auto text-[#D90429] mb-2" />
-                  <p className="text-3xl lg:text-4xl font-bold text-[#D90429]">{stat.value}</p>
-                  <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
-                </div>
-              ))}
-            </div>
           </div>
+        </div>
+
+        {/* Stats */}
+        <div className="mt-12 lg:mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {stats.map((stat, index) => (
+            <div 
+              key={index} 
+              className="bg-white border border-gray-100 rounded-xl p-6 text-center shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+            >
+              <stat.icon className="h-8 w-8 mx-auto text-[#D90429] mb-3" />
+              <p className="text-3xl lg:text-4xl font-extrabold text-[#D90429]">{stat.value}</p>
+              <p className="text-sm font-medium text-gray-500 mt-1">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

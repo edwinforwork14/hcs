@@ -8,7 +8,7 @@ export function SocialSection() {
 
   return (
     <section className="py-10 lg:py-12 bg-[#0A0A0A]">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
           {/* Left - Heading */}
           <div className="flex flex-col justify-center md:col-span-2 lg:col-span-1 mb-4 md:mb-2 lg:mb-0">
@@ -27,7 +27,7 @@ export function SocialSection() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-base lg:text-lg font-semibold text-white">Instagram</h3>
-              <p className="text-xs lg:text-sm text-gray-300">@hcs_global</p>
+              <p className="text-xs lg:text-sm text-gray-300">@hcs_trading</p>
               <p className="text-xs lg:text-sm text-gray-400 mt-0.5 leading-relaxed">{t("social.instagramFollow")}</p>
             </div>
             <ArrowRight className="w-5 h-5 text-[#D90429] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
@@ -40,7 +40,7 @@ export function SocialSection() {
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-base lg:text-lg font-semibold text-white">LinkedIn</h3>
-              <p className="text-xs lg:text-sm text-gray-300">HCS Global</p>
+              <p className="text-xs lg:text-sm text-gray-300">HCS Trading</p>
               <p className="text-xs lg:text-sm text-gray-400 mt-0.5 leading-relaxed">{t("social.linkedinConnect")}</p>
             </div>
             <ArrowRight className="w-5 h-5 text-[#D90429] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />

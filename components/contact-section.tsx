@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Mail, Phone, ArrowRight, MessageCircle, Loader2 } from "lucide-react"
+import { Mail, Phone, ArrowRight, MessageCircle, Loader2, MapPin, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useLanguage } from "@/context/language-context"
@@ -10,12 +10,13 @@ import { toast } from "sonner"
 type FormStatus = "idle" | "loading"
 
 export function ContactSection() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [formStatus, setFormStatus] = useState<FormStatus>("idle")
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     company: "",
+    phone: "",
     message: "",
   })
 
@@ -46,7 +47,7 @@ export function ContactSection() {
       }
 
       setFormStatus("idle")
-      setFormData({ fullName: "", email: "", company: "", message: "" })
+      setFormData({ fullName: "", email: "", company: "", phone: "", message: "" })
       
       toast.success(t("contact.toastSuccess") || "Message sent! We will get back to you soon.")
     } catch (error) {
@@ -58,10 +59,10 @@ export function ContactSection() {
 
   return (
     <section id="contact" className="py-16 lg:py-20 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 relative overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+      <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-stretch">
           {/* Left - Contact Info Card */}
-          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col">
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col h-full">
             <span className="text-base lg:text-lg font-semibold tracking-widest uppercase bg-gradient-to-r from-[#B80324] via-[#D90429] to-[#FF4D6A] bg-clip-text text-transparent">
               {t("contact.label")}
             </span>
@@ -81,21 +82,49 @@ export function ContactSection() {
                 <Phone className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-500">USA</span>
-                  <span className="text-base text-gray-300">+1 832 650 6647</span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <img 
+                      src="/images/us.svg" 
+                      alt="USA Flag" 
+                      className="w-5 h-3.5 object-cover rounded-[2px] border border-white/10 shadow-sm"
+                    />
+                    <span className="text-base text-gray-300">+1 832 650 6647</span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-4">
                 <MessageCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 <div className="flex flex-col">
                   <span className="text-xs text-gray-500">WhatsApp</span>
-                  <span className="text-base text-gray-300">+58 412 300 0970</span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <img 
+                      src="/images/ve.svg" 
+                      alt="Venezuela Flag" 
+                      className="w-5 h-3.5 object-cover rounded-[2px] border border-white/10 shadow-sm"
+                    />
+                    <span className="text-base text-gray-300">+58 412 300 0970</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500">{language === "en" ? "Location" : "Ubicación"}</span>
+                  <span className="text-base text-gray-300">Miami, Florida, USA</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Globe className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-500">{language === "en" ? "Website" : "Sitio Web"}</span>
+                  <a href="https://www.hcstradingllc.org" target="_blank" rel="noopener noreferrer" className="text-base text-gray-300 hover:text-white transition-colors">www.hcstradingllc.org</a>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right - Contact Form Card */}
-          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col min-h-[400px]">
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 lg:p-10 border border-white/20 shadow-xl flex flex-col">
             <form onSubmit={handleSubmit} className="space-y-4 flex flex-col h-full">
               <Input
                 type="text"
@@ -126,6 +155,15 @@ export function ContactSection() {
                 disabled={formStatus === "loading"}
                 className="bg-white/10 border-white/10 text-white placeholder:text-gray-500 h-12 text-base rounded-lg focus:border-[#D90429]/50 focus:ring-[#D90429]/20 disabled:opacity-50"
               />
+              <Input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                placeholder={t("contact.phone")}
+                disabled={formStatus === "loading"}
+                className="bg-white/10 border-white/10 text-white placeholder:text-gray-500 h-12 text-base rounded-lg focus:border-[#D90429]/50 focus:ring-[#D90429]/20 disabled:opacity-50"
+              />
               <textarea
                 name="message"
                 value={formData.message}
@@ -133,8 +171,7 @@ export function ContactSection() {
                 placeholder={t("contact.message")}
                 required
                 disabled={formStatus === "loading"}
-                rows={4}
-                className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-gray-500 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#D90429]/20 focus:border-[#D90429]/50 disabled:opacity-50 min-h-[120px]"
+                className="w-full px-4 py-3 bg-white/10 border border-white/10 rounded-lg text-white placeholder:text-gray-500 text-base resize-none focus:outline-none focus:ring-2 focus:ring-[#D90429]/20 focus:border-[#D90429]/50 disabled:opacity-50 flex-1 min-h-[120px]"
               />
 
               <Button 

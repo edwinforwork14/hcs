@@ -13,7 +13,7 @@ export function LanguageToggle() {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/20 bg-transparent hover:bg-white/10 transition-colors text-sm font-medium text-white"
+      className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-white/20 bg-transparent hover:bg-white/10 transition-colors text-sm font-medium text-white cursor-pointer"
       aria-label={language === "en" ? "Switch to Spanish" : "Cambiar a Inglés"}
     >
       <Globe className="h-4 w-4" />

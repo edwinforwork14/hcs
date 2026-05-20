@@ -1,7 +1,8 @@
 "use client"
 
-import { ArrowRight, Globe, Users, Package, UserCheck } from "lucide-react"
+import { ArrowRight, Globe, Handshake, Package, UserCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import { useLanguage } from "@/context/language-context"
 
 export function HeroSection() {
@@ -14,7 +15,7 @@ export function HeroSection() {
       subtitle: t("hero.panAmericanSub"),
     },
     {
-      icon: Users,
+      icon: Handshake,
       title: t("hero.trustedBy"),
       subtitle: t("hero.trustedBySub"),
     },
@@ -31,7 +32,7 @@ export function HeroSection() {
   ]
 
   return (
-    <section className="relative min-h-screen bg-[#0A0A0A] overflow-hidden flex flex-col">
+    <section className="relative bg-[#0A0A0A] overflow-x-hidden flex flex-col" style={{ minHeight: '100svh' }}>
       {/* Background Image/Globe */}
       <div className="absolute inset-0">
         <div 
@@ -41,57 +42,66 @@ export function HeroSection() {
             backgroundPosition: 'center right',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/70 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
+        {/* Left gradient: dark overlay for text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/80 to-[#0A0A0A]/20" />
+        {/* Top: slight darkening */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/30 via-transparent to-transparent" />
+        {/* Bottom: full dark fade so trust indicators sit naturally on dark bg */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" style={{ top: '50%' }} />
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-32 lg:pt-40 pb-12">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12 pt-20 sm:pt-24 lg:pt-28 pb-4">
         <div className="max-w-3xl">
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-[5rem] font-extrabold text-white leading-[1.05] italic font-[family-name:var(--font-sora)]">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-[4.5rem] font-extrabold text-white leading-[1.05] font-[family-name:var(--font-sora)]">
             {t("hero.title1")}<br />
             {t("hero.title2")}<br />
             {t("hero.title3")}
           </h1>
           
           {/* Red accent line */}
-          <div className="w-20 h-1 bg-[#D90429] mt-8" />
+          <div className="w-20 h-1 bg-[#D90429] mt-4" />
           
-          <p className="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl leading-relaxed">
+          <p className="mt-3 text-base sm:text-lg text-gray-300 max-w-2xl leading-relaxed">
             {t("hero.subtitle")}
           </p>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Button className="bg-[#D90429] hover:bg-[#B80324] text-white rounded-md px-8 py-6 text-base font-semibold">
-              {t("nav.contactUs")}
-              <ArrowRight className="ml-2 h-5 w-5" />
+          <div className="mt-6 flex flex-wrap gap-4">
+            <Button asChild className="bg-[#D90429] hover:bg-[#B80324] text-white rounded-md px-6 py-4 text-sm sm:text-base font-semibold cursor-pointer">
+              <Link href="#contact">
+                {t("nav.contactUs")}
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+              </Link>
             </Button>
             <Button 
+              asChild
               variant="outline" 
-              className="border-white/30 text-white hover:bg-white/10 rounded-md px-8 py-6 text-base font-semibold bg-transparent"
+              className="border-white/40 text-white hover:bg-white/10 rounded-md px-6 py-4 text-sm sm:text-base font-semibold bg-transparent cursor-pointer"
             >
-              {t("hero.exploreSolutions")}
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <Link href="#solutions">
+                {t("hero.exploreSolutions")}
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+              </Link>
             </Button>
           </div>
         </div>
       </div>
 
       {/* Spacer to push trust indicators toward bottom */}
-      <div className="flex-1 min-h-[40px]" />
+      <div className="flex-1 min-h-[20px]" />
 
-      {/* Trust Indicators - no background, sits on top of hero gradient */}
-      <div className="relative z-10 w-full pb-8 lg:pb-10">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-6 justify-items-center">
+      {/* Trust Indicators – float over hero's naturally darkened bottom */}
+      <div className="relative z-10 w-full py-6 lg:py-8">
+        <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-6 gap-x-6 lg:gap-x-8 justify-items-start">
             {trustIndicators.map((item, index) => (
-              <div key={index} className="flex items-center gap-4 w-full max-w-[280px]">
-                <div className="flex-shrink-0 w-14 h-14 rounded-full border border-[#D90429] flex items-center justify-center">
-                  <item.icon className="h-6 w-6 text-[#D90429]" strokeWidth={1.5} />
+              <div key={index} className="flex items-center gap-3 w-full max-w-[280px]">
+                <div className="flex-shrink-0 w-11 h-11 rounded-full border border-[#D90429] flex items-center justify-center">
+                  <item.icon className="h-5 w-5 text-[#D90429]" strokeWidth={1.5} />
                 </div>
                 <div className="flex flex-col">
-                  <p className="text-base lg:text-lg font-semibold text-white leading-tight">{item.title}</p>
-                  <p className="text-sm text-gray-500 mt-1">{item.subtitle}</p>
+                  <p className="text-xs sm:text-sm lg:text-base font-semibold text-white leading-tight">{item.title}</p>
+                  <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5">{item.subtitle}</p>
                 </div>
               </div>
             ))}
@@ -99,11 +109,11 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Smooth fade-out transition to next section */}
+      {/* Smooth transition strip: fully opaque dark → white */}
       <div 
-        className="relative h-32 lg:h-40 w-full z-10"
+        className="relative z-10 w-full h-20 lg:h-24"
         style={{
-          background: 'linear-gradient(to bottom, rgba(10,10,10,0) 0%, rgba(10,10,10,0.4) 30%, rgba(120,120,120,0.3) 60%, rgba(220,220,220,0.6) 85%, #F8F8F8 100%)'
+          background: 'linear-gradient(to bottom, #0A0A0A 0%, rgba(10,10,10,0.9) 25%, rgba(30,30,30,0.5) 55%, rgba(220,220,220,0.5) 80%, #F8F8F8 100%)'
         }}
       />
     </section>
