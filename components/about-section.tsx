@@ -32,7 +32,7 @@ export function AboutSection() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left - Global Network Map Image */}
           <div className="relative flex justify-center lg:justify-end lg:pr-8 mb-10 lg:mb-0">
-            <div className="relative w-full max-w-[460px] lg:max-w-[480px]">
+            <div className="relative w-full max-w-[460px]">
               <img
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_0248.JPG-HGQNLuqWBWLZEdjygo9VHMIjNkoXzO.jpeg"
                 alt="Global network connections across the Americas"

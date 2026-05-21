@@ -126,10 +126,10 @@ export function HeroSection() {
       </div>
 
       <div
-        className="relative z-10 h-16 sm:h-20 lg:h-24 2xl:h-16"
+        className="relative z-10 h-16 sm:h-24 lg:h-32"
         style={{
           background:
-            "linear-gradient(to bottom, #0A0A0A 0%, #0A0A0A 40%, rgba(10,10,10,0.8) 70%, #F8F8F8 100%)",
+            "linear-gradient(to bottom, #0A0A0A 0%, #F8F8F8 100%)",
         }}
       />
     </section>
