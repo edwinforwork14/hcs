@@ -37,9 +37,11 @@ export function useContactForm() {
       toast.success(t("contact.toastSuccess") || "Message sent! We will get back to you soon.")
     } catch (error) {
       setFormStatus("idle")
+      const errorMessage = error instanceof Error ? error.message : ""
       toast.error(
-        t("contact.toastError") || 
-        (error instanceof Error ? error.message : "Failed to send message. Please try again.")
+        errorMessage && errorMessage !== "Failed to execute request"
+          ? errorMessage
+          : (t("contact.toastError") || "Failed to send message. Please try again.")
       )
     }
   }

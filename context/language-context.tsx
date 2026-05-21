@@ -63,6 +63,8 @@ const translations = {
     "solutions.securityDesc": "Reliable security solutions to protect what matters most.",
     "solutions.globalSupply": "Global Supply Solutions",
     "solutions.globalSupplyDesc": "Strategic sourcing and distribution solutions that support business growth and operational efficiency across international markets.",
+    "solutions.showMore": "Show more",
+    "solutions.showLess": "Show less",
 
     // Why HCS
     "whyHcs.label": "Why Choose HCS",
@@ -75,7 +77,7 @@ const translations = {
     "whyHcs.trustedDesc": "Long-term relationships built on professionalism, reliability, and business growth.",
     "whyHcs.expertise": "Industry Experience",
     "whyHcs.expertiseDesc": "Deep understanding of electronics, networking, and international supply operations.",
-    "whyHcs.businessFocused": "Business-Focused Solutions",
+    "whyHcs.businessFocused": "Business Solutions",
     "whyHcs.businessFocusedDesc": "Strategic solutions designed to create efficiency, scalability, and long-term value.",
 
     // Social
@@ -160,6 +162,8 @@ const translations = {
     "solutions.securityDesc": "Soluciones de seguridad confiables para proteger lo que más importa.",
     "solutions.globalSupply": "Soluciones de Suministro Global",
     "solutions.globalSupplyDesc": "Soluciones estratégicas de abastecimiento y distribución que respaldan el crecimiento comercial y la eficiencia operativa en los mercados internacionales.",
+    "solutions.showMore": "Ver más",
+    "solutions.showLess": "Ver menos",
 
     // Why HCS
     "whyHcs.label": "Por Qué Elegir HCS",
@@ -172,7 +176,7 @@ const translations = {
     "whyHcs.trustedDesc": "Relaciones a largo plazo basadas en el profesionalismo, la confiabilidad y el crecimiento comercial.",
     "whyHcs.expertise": "Experiencia en la Industria",
     "whyHcs.expertiseDesc": "Profundo entendimiento de la electrónica, las redes y las operaciones de suministro internacional.",
-    "whyHcs.businessFocused": "Soluciones Enfocadas en el Negocio",
+    "whyHcs.businessFocused": "Soluciones Comerciales",
     "whyHcs.businessFocusedDesc": "Soluciones estratégicas diseñadas para generar eficiencia, escalabilidad y valor a largo plazo.",
 
     // Social

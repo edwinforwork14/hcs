@@ -57,18 +57,26 @@ export function SolutionsSection() {
                   <h3 className="text-xl lg:text-2xl font-semibold text-white mb-2 font-[family-name:var(--font-sora)] min-h-[3.5rem]">
                     {t(solution.titleKey)}
                   </h3>
-                  <p className={`text-lg text-gray-200 leading-relaxed transition-all duration-300 ${isExpanded ? '' : 'line-clamp-2'}`}>
-                    {t(solution.descKey)}
-                  </p>
-                  {!isExpanded && (
-                    <button
-                      onClick={() => toggleCard(solution.id)}
-                      className="text-gray-400 hover:text-white text-2xl leading-none tracking-widest mt-1 text-left cursor-pointer transition-colors"
-                      aria-label="Show more"
+                  <button
+                    type="button"
+                    onClick={() => toggleCard(solution.id)}
+                    aria-expanded={isExpanded}
+                    aria-label={isExpanded ? t("solutions.showLess") : t("solutions.showMore")}
+                    className="w-full flex-grow text-left cursor-pointer transition-colors hover:text-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D90429]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A] rounded-sm"
+                  >
+                    <p
+                      className={`text-lg text-gray-200 leading-relaxed transition-all duration-300 ${
+                        isExpanded ? "" : "line-clamp-2"
+                      }`}
                     >
-                      •••
-                    </button>
-                  )}
+                      {t(solution.descKey)}
+                      {!isExpanded && (
+                        <span className="ml-0.5 inline text-sm text-gray-400 align-baseline">
+                          …
+                        </span>
+                      )}
+                    </p>
+                  </button>
                   <a 
                     href={solution.href} 
                     className="flex items-center text-[#D90429] text-base font-medium group-hover:gap-2 transition-all mt-auto pt-4"

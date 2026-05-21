@@ -20,8 +20,10 @@ export async function POST(request: Request) {
     const result = contactSchema.safeParse(body)
     
     if (!result.success) {
+      console.error("Validation error:", JSON.stringify(result.error.format(), null, 2))
+      const firstError = result.error.errors[0]
       return NextResponse.json(
-        { error: "Invalid form data", details: result.error.format() },
+        { error: firstError?.message || "Invalid form data" },
         { status: 400 }
       )
     }
@@ -52,7 +54,8 @@ export async function POST(request: Request) {
     const { data, error } = await resend.emails.send({
       from: "HCS Contact Form <noreply@contact.hcstrading.org>",
       to: [recipientEmail],
-      subject: `New Contact Form Submission from ${fullName}`,
+      replyTo: email,
+      subject: `New Contact from ${fullName} - HCS Trading`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #D90429;">New Contact Form Submission</h2>
@@ -68,7 +71,6 @@ export async function POST(request: Request) {
           <p style="color: #666; font-size: 12px;">This email was sent from the HCS Trading website contact form.</p>
         </div>
       `,
-      replyTo: email,
     })
 
     if (error) {

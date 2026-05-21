@@ -20,19 +20,23 @@ export function WhyHCSSection() {
         </div>
 
         {/* Advantages Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 lg:gap-8">
+        <div className="grid grid-cols-2 items-start gap-6 md:grid-cols-3 lg:grid-cols-5 lg:gap-8">
           {whyHcsConfig.map((advantage, index) => (
-            <div 
+            <div
               key={index}
-              className={`text-center group ${index === whyHcsConfig.length - 1 ? 'col-span-2 md:col-span-1 lg:col-span-1' : ''}`}
+              className={`group flex flex-col text-center ${
+                index === whyHcsConfig.length - 1 ? "col-span-2 md:col-span-1 lg:col-span-1" : ""
+              }`}
             >
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[#FF4D6A] via-[#D90429] to-[#800010] flex items-center justify-center mb-4 shadow-lg shadow-[#D90429]/30 border border-white/10 group-hover:scale-110 group-hover:shadow-[#D90429]/50 transition-all duration-300">
-                <advantage.icon className="w-7 h-7 text-white filter drop-shadow-sm" strokeWidth={2} />
+              <div className="mx-auto mb-3 flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#FF4D6A] via-[#D90429] to-[#800010] shadow-lg shadow-[#D90429]/30 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[#D90429]/50">
+                <advantage.icon className="h-9 w-9 text-white drop-shadow-sm filter" strokeWidth={2} />
               </div>
-              <h3 className="text-base lg:text-lg font-bold text-[#0A0A0A] mb-2 font-[family-name:var(--font-sora)]">
-                {t(advantage.titleKey)}
-              </h3>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-700 leading-relaxed font-normal px-1">
+              <div className="mb-1.5 flex min-h-[2.5rem] items-end justify-center px-1 sm:min-h-[2.75rem] lg:min-h-[3rem]">
+                <h3 className="font-[family-name:var(--font-sora)] text-base font-bold leading-snug text-[#0A0A0A] lg:text-lg">
+                  {t(advantage.titleKey)}
+                </h3>
+              </div>
+              <p className="px-1 text-xs font-normal leading-relaxed text-gray-700 sm:text-sm lg:text-base">
                 {t(advantage.descKey)}
               </p>
             </div>

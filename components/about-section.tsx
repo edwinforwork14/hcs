@@ -32,7 +32,7 @@ export function AboutSection() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left - Global Network Map Image */}
           <div className="relative flex justify-center lg:justify-end lg:pr-8 mb-10 lg:mb-0">
-            <div className="relative w-full max-w-[580px]">
+            <div className="relative w-full max-w-[460px] lg:max-w-[480px]">
               <img
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/IMG_0248.JPG-HGQNLuqWBWLZEdjygo9VHMIjNkoXzO.jpeg"
                 alt="Global network connections across the Americas"
@@ -43,10 +43,10 @@ export function AboutSection() {
 
           {/* Right Content */}
           <div className="flex flex-col">
-            <span className="text-lg lg:text-xl font-semibold tracking-widest uppercase bg-gradient-to-r from-[#B80324] via-[#D90429] to-[#FF4D6A] bg-clip-text text-transparent">
+            <span className="text-sm lg:text-base font-semibold tracking-widest uppercase bg-gradient-to-r from-[#B80324] via-[#D90429] to-[#FF4D6A] bg-clip-text text-transparent">
               {t("about.label")}
             </span>
-            <h2 className="mt-2 text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#1A1A1A] leading-[1.1] font-[family-name:var(--font-sora)] tracking-tight">
+            <h2 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-semibold text-[#0A0A0A] font-[family-name:var(--font-sora)]">
               {t("about.title")}
             </h2>
             <p className="mt-4 text-base lg:text-[16px] text-gray-500 leading-normal font-normal">

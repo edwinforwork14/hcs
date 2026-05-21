@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Linkedin, Instagram, Mail, Phone, MessageCircle } from "lucide-react"
+import { Mail, Phone, MessageCircle } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
 import { siteConfig } from "@/config/site.config"
 
@@ -29,7 +29,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-white/10">
           {/* Logo & Description */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2 md:col-span-1 order-1 md:order-1">
             <Link href="/" className="flex flex-col">
               <span className="text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
@@ -39,47 +39,10 @@ export function Footer() {
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               {t("footer.tagline")}
             </p>
-            <div className="mt-4 flex items-center gap-3">
-              <a 
-                href={siteConfig.social.linkedin.url} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D90429] transition-all duration-300"
-                aria-label="LinkedIn"
-              >
-                <Linkedin className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
-              </a>
-              <a 
-                href={siteConfig.social.instagram.url} 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#D90429] transition-all duration-300"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4 text-gray-400 group-hover:text-white transition-colors" />
-              </a>
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">{t("footer.quickLinks")}</h4>
-            <ul className="space-y-2">
-              {quickLinks.map((link) => (
-                <li key={link.labelKey}>
-                  <Link 
-                    href={link.href} 
-                    className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
-                  >
-                    {t(link.labelKey)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Solutions */}
-          <div>
+          <div className="order-2 md:order-3">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">{t("footer.solutions")}</h4>
             <ul className="space-y-2">
               {solutions.map((link) => (
@@ -96,7 +59,7 @@ export function Footer() {
           </div>
 
           {/* Contact Info */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="order-2 md:order-4">
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">{t("footer.contactInfo")}</h4>
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-sm text-gray-400">
@@ -131,6 +94,23 @@ export function Footer() {
                   </div>
                 </div>
               </li>
+            </ul>
+          </div>
+
+          {/* Quick Links */}
+          <div className="order-3 md:order-2">
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">{t("footer.quickLinks")}</h4>
+            <ul className="space-y-2">
+              {quickLinks.map((link) => (
+                <li key={link.labelKey}>
+                  <Link 
+                    href={link.href} 
+                    className="text-sm text-gray-400 hover:text-white transition-colors duration-200"
+                  >
+                    {t(link.labelKey)}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
