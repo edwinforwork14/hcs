@@ -47,20 +47,7 @@ export function ContactSection() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <MessageCircle className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                <div className="flex flex-col">
-                  <span className="text-xs text-gray-500">{siteConfig.phones.venezuela.label}</span>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <img 
-                      src={siteConfig.phones.venezuela.flag} 
-                      alt={`${siteConfig.phones.venezuela.label} Flag`} 
-                      className="w-5 h-3.5 object-cover rounded-[2px] border border-white/10 shadow-sm"
-                    />
-                    <span className="text-base text-gray-300">{siteConfig.phones.venezuela.number}</span>
-                  </div>
-                </div>
-              </div>
+
               <div className="flex items-center gap-4">
                 <MapPin className="w-5 h-5 text-gray-400 flex-shrink-0" />
                 <div className="flex flex-col">

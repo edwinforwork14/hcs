@@ -8,7 +8,6 @@ export const siteConfig: SiteConfig = {
   location: "Miami, Florida, USA",
   phones: {
     usa: { number: "+1 832 650 6647", flag: "/images/us.svg", label: "USA" },
-    venezuela: { number: "+58 412 300 0970", flag: "/images/ve.svg", label: "WhatsApp" },
   },
   social: {
     instagram: { handle: "@hcs_trading", url: "https://www.instagram.com/hcs_trading" },

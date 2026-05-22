@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Menu, X, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/context/language-context"
+import { LanguageToggle } from "@/components/language-toggle"
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -26,10 +27,9 @@ export function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center flex-1">
             <div className="flex flex-col items-center">
-              <span className="text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)] leading-none">
+              <span className="text-4xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)] leading-none">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
               </span>
-              <span className="text-[8.5px] tracking-[0.18em] text-gray-400 uppercase font-semibold mt-1 whitespace-nowrap">TRADING</span>
             </div>
           </Link>
 
@@ -54,13 +54,8 @@ export function Header() {
           </nav>
 
           {/* CTA Button */}
-          <div className="hidden lg:flex gap-4 flex-1 justify-end pt-1">
-            <Button asChild className="bg-[#D90429] hover:bg-[#B80324] text-white rounded-md px-5 py-2 text-sm font-semibold cursor-pointer">
-              <Link href="#contact">
-                {t("nav.contactUs")}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+          <div className="hidden lg:flex gap-4 flex-1 justify-end pt-1 items-center">
+            <LanguageToggle />
           </div>
 
           {/* Mobile Menu Button */}
@@ -88,12 +83,9 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
-              <Button asChild className="bg-[#D90429] hover:bg-[#B80324] text-white rounded-md w-full mt-2 font-semibold cursor-pointer">
-                <Link href="#contact" onClick={() => setMobileMenuOpen(false)}>
-                  {t("nav.contactUs")}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              <div className="pt-2 pb-2 border-t border-white/10 mt-1">
+                <LanguageToggle />
+              </div>
             </nav>
           </div>
         )}

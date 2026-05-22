@@ -17,7 +17,7 @@ export function LanguageToggle() {
       aria-label={language === "en" ? "Switch to Spanish" : "Cambiar a Inglés"}
     >
       <Globe className="h-4 w-4" />
-      <span className="uppercase">{language === "en" ? "ES" : "EN"}</span>
+      <span>{language === "en" ? "Español" : "English"}</span>
     </button>
   )
 }

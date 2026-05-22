@@ -31,10 +31,9 @@ export function Footer() {
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1 order-1 md:order-1">
             <Link href="/" className="inline-flex flex-col items-center">
-              <span className="text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
+              <span className="text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
               </span>
-              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold">TRADING</span>
             </Link>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               {t("footer.tagline")}
@@ -80,20 +79,7 @@ export function Footer() {
                   </div>
                 </div>
               </li>
-              <li className="flex items-start gap-2 text-sm text-gray-400">
-                <MessageCircle className="w-4 h-4 text-[#D90429] shrink-0 mt-0.5" />
-                <div className="flex flex-col">
-                  <span className="text-[9px] text-gray-500 uppercase tracking-widest font-semibold">{siteConfig.phones.venezuela.label}</span>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <img 
-                      src={siteConfig.phones.venezuela.flag} 
-                      alt={`${siteConfig.phones.venezuela.label} Flag`} 
-                      className="w-4 h-3 object-cover rounded-[1px] border border-white/10"
-                    />
-                    <span>{siteConfig.phones.venezuela.number}</span>
-                  </div>
-                </div>
-              </li>
+
             </ul>
           </div>
 
