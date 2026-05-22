@@ -30,11 +30,11 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pb-8 border-b border-white/10">
           {/* Logo & Description */}
           <div className="col-span-2 md:col-span-1 order-1 md:order-1">
-            <Link href="/" className="flex flex-col">
+            <Link href="/" className="inline-flex flex-col items-center">
               <span className="text-2xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)]">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
               </span>
-              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold">Trading</span>
+              <span className="text-[10px] tracking-widest text-gray-500 uppercase font-semibold">TRADING</span>
             </Link>
             <p className="mt-3 text-sm text-gray-400 leading-relaxed">
               {t("footer.tagline")}

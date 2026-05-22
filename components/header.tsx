@@ -25,11 +25,11 @@ export function Header() {
         <div className="flex h-20 items-start pt-5">
           {/* Logo */}
           <Link href="/" className="flex items-center flex-1">
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-center">
               <span className="text-3xl font-bold tracking-tight text-white font-[family-name:var(--font-sora)] leading-none">
                 HC<span className="bg-gradient-to-b from-white from-50% to-[#D90429] to-50% bg-clip-text text-transparent inline-block">S</span>
               </span>
-              <span className="text-[8.5px] tracking-[0.18em] text-gray-400 uppercase font-semibold mt-1 whitespace-nowrap">Global Representation</span>
+              <span className="text-[8.5px] tracking-[0.18em] text-gray-400 uppercase font-semibold mt-1 whitespace-nowrap">TRADING</span>
             </div>
           </Link>
 

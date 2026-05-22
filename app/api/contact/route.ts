@@ -55,7 +55,7 @@ export async function POST(request: Request) {
       from: "HCS Contact Form <noreply@contact.hcstrading.org>",
       to: [recipientEmail],
       replyTo: email,
-      subject: `New Contact from ${fullName} - HCS Trading`,
+      subject: `New Contact from ${fullName} - HCS trading`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #D90429;">New Contact Form Submission</h2>
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
           <h3>Message:</h3>
           <p style="background: #f5f5f5; padding: 15px; border-radius: 8px; white-space: pre-wrap;">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
           <hr style="border: 1px solid #eee;" />
-          <p style="color: #666; font-size: 12px;">This email was sent from the HCS Trading website contact form.</p>
+          <p style="color: #666; font-size: 12px;">This email was sent from the HCS trading website contact form.</p>
         </div>
       `,
     })

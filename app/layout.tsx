@@ -16,8 +16,8 @@ const sora = Sora({
 })
 
 export const metadata: Metadata = {
-  title: 'HCS Trading LLC | Connecting Global Brands Across the Americas',
-  description: 'HCS Trading LLC specializes in electronics and global supply solutions, representing and distributing international brands across the Americas through reliable partnerships, strategic logistics, and industry expertise.',
+  title: 'HCS trading | Connecting Global Brands Across the Americas',
+  description: 'HCS trading specializes in electronics and global supply solutions, representing and distributing international brands across the Americas through reliable partnerships, strategic logistics, and industry expertise.',
   keywords: ['electronics', 'global supply', 'distribution', 'Americas', 'networking solutions', 'CCTV', 'security systems'],
 }
 

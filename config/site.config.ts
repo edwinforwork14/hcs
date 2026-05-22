@@ -1,8 +1,8 @@
 import { SiteConfig } from "@/types/site.types"
 
 export const siteConfig: SiteConfig = {
-  name: "HCS Trading LLC",
-  shortName: "HCS Trading",
+  name: "HCS trading",
+  shortName: "HCS trading",
   email: "info@hcstradingllc.org",
   website: "www.hcstradingllc.org",
   location: "Miami, Florida, USA",
@@ -12,7 +12,7 @@ export const siteConfig: SiteConfig = {
   },
   social: {
     instagram: { handle: "@hcs_trading", url: "https://www.instagram.com/hcs_trading" },
-    linkedin: { name: "HCS Trading", url: "https://www.linkedin.com/company/hcs-trading-llc" },
+    linkedin: { name: "HCS trading", url: "https://www.linkedin.com/company/hcs-trading-llc" },
   },
   copyrightYear: 2026,
 }
