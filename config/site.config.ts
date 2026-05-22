@@ -4,7 +4,7 @@ export const siteConfig: SiteConfig = {
   name: "HCS trading",
   shortName: "HCS trading",
   email: "info@hcstradingllc.org",
-  website: "www.hcstradingllc.org",
+  website: "www.hcstrading.org",
   location: "Miami, Florida, USA",
   phones: {
     usa: { number: "+1 832 650 6647", flag: "/images/us.svg", label: "USA" },
