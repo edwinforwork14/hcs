@@ -32,7 +32,7 @@ export function HeroSection() {
   ]
 
   return (
-    <section className="relative flex flex-col overflow-x-hidden bg-[#0A0A0A] min-h-[auto] sm:min-h-screen 2xl:min-h-0">
+    <section className="relative flex flex-col overflow-x-hidden bg-[#0A0A0A] min-h-[auto] 2xl:min-h-[115vh]">
       {/* Background Image/Globe */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <div
@@ -54,7 +54,7 @@ export function HeroSection() {
       </div>
 
       {/* Compact content block: title, CTAs and trust indicators stay grouped */}
-      <div className="relative z-10 flex flex-col justify-start">
+      <div className="relative z-10 flex flex-col justify-start 2xl:my-auto">
         <div className="mx-auto w-full max-w-7xl px-6 pb-8 pt-24 sm:px-8 sm:pb-10 sm:pt-28 lg:px-12 lg:pb-10 lg:pt-32 2xl:pb-6 2xl:pt-28">
           <div className="max-w-xl lg:max-w-2xl">
             <h1 className="font-[family-name:var(--font-sora)] text-3xl font-extrabold leading-[1.05] text-white sm:text-4xl md:text-5xl lg:text-5xl xl:text-6xl">
@@ -126,7 +126,7 @@ export function HeroSection() {
       </div>
 
       <div
-        className="relative z-10 h-16 sm:h-24 lg:h-32"
+        className="relative z-10 mt-auto h-16 sm:h-24 lg:h-32"
         style={{
           background:
             "linear-gradient(to bottom, #0A0A0A 0%, #F8F8F8 100%)",
