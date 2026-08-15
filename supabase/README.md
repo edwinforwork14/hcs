@@ -1,0 +1,59 @@
+# Live Chat — Supabase Setup
+
+The customer widget and the admin dashboard (`/admin/support`) run on Supabase
+(Postgres + Realtime + Auth). This folder contains everything needed to wire it
+up.
+
+## 1. Create a Supabase project
+
+Create a project at [supabase.com](https://supabase.com). Copy the project URL
+and keys from **Project Settings → API** into a local `.env` file:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+```
+
+> ⚠️ `SUPABASE_SERVICE_ROLE_KEY` bypasses Row Level Security. Only use it on the
+> server. Never expose it in client code or `NEXT_PUBLIC_` variables.
+
+## 2. Run the migration
+
+Open **SQL Editor → New query**, paste the contents of [`schema.sql`](./schema.sql)
+and run it. This creates the `conversations`, `messages` and `admins` tables,
+Row Level Security policies, and enables Realtime.
+
+Realtime can also be enabled manually: **Database → Replication → Enable
+Realtime** for `conversations` and `messages`.
+
+## 3. Create an admin user
+
+1. **Authentication → Users → Add user** with the email of a support agent.
+2. Insert the same email into the `admins` table (the migration seeds
+   `admin@hcstradingllc.org` — edit it to your real email):
+
+```sql
+insert into public.admins (email, name)
+values ('support@yourcompany.com', 'Support Admin')
+on conflict (email) do nothing;
+```
+
+Only users whose email exists in `admins` can open `/admin/support`.
+
+## 4. Run the app
+
+```bash
+pnpm dev
+```
+
+- Customer chat: floating button, bottom-right on every page.
+- Admin dashboard: `/admin/support` (sign in with the Auth user above).
+
+## Security notes (Phase 1)
+
+- Anonymous visitors can read all `conversations`/`messages` (required for
+  history + Realtime without accounts). Phase 2 should replace this with
+  per-conversation access tokens.
+- Message sending is validated client-side with Zod and constrained by RLS
+  (`sender_type`), but there is no rate limiting yet.

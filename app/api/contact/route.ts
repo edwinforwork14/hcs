@@ -2,8 +2,6 @@ import { NextResponse } from "next/server"
 import { Resend } from "resend"
 import { z } from "zod"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 const contactSchema = z.object({
   fullName: z.string().min(2, "Name is too short").max(100),
   email: z.string().email("Invalid email address"),
@@ -50,7 +48,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Send email using Resend
+    // Send email using Resend (instantiated lazily so the route can build
+    // without a configured RESEND_API_KEY)
+    const resend = new Resend(process.env.RESEND_API_KEY)
+
     const { data, error } = await resend.emails.send({
       from: "HCS Contact Form <noreply@contact.hcstrading.org>",
       to: [recipientEmail],
