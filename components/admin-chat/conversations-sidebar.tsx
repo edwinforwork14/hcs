@@ -44,10 +44,13 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
             <LanguageToggle variant="panel" />
             <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
               <span
-                className={cn(
-                  'size-1.5 rounded-full',
-                  realtimeStatus === 'SUBSCRIBED' ? 'bg-green-500' : 'bg-amber-500',
-                )}
+                className="rounded-full"
+                style={{
+                  width: 6,
+                  height: 6,
+                  backgroundColor:
+                    realtimeStatus === 'SUBSCRIBED' ? '#22c55e' : '#f59e0b',
+                }}
               />
               {realtimeStatus === 'SUBSCRIBED'
                 ? t('admin.live')
@@ -121,15 +124,25 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                 </span>
                 <span className="flex shrink-0 items-center gap-1.5">
                   {c.unreadCount > 0 && (
-                    <Badge className="size-4.5 rounded-full px-1.5 text-[10px]">
+                    <Badge
+                      className="rounded-full px-1.5 text-[10px]"
+                      style={{
+                        backgroundColor: '#dc2626',
+                        color: '#ffffff',
+                        minWidth: 18,
+                        height: 18,
+                      }}
+                    >
                       {c.unreadCount}
                     </Badge>
                   )}
                   <span
-                    className={cn(
-                      'size-2 rounded-full',
-                      c.status === 'open' ? 'bg-green-500' : 'bg-gray-400',
-                    )}
+                    className="rounded-full"
+                    style={{
+                      width: 8,
+                      height: 8,
+                      backgroundColor: c.status === 'open' ? '#22c55e' : '#9ca3af',
+                    }}
                   />
                 </span>
               </div>

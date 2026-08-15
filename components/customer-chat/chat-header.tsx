@@ -4,7 +4,6 @@ import { Globe, MessageCircle, RotateCcw, X } from 'lucide-react'
 
 import { useLanguage } from '@/context/language-context'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
 
 interface ChatHeaderProps {
   online: boolean
@@ -35,19 +34,27 @@ export function ChatHeader({
           </p>
           <p className="flex items-center gap-1.5 text-xs text-white/85">
             {/* WhatsApp-style status dot: pulsing green when online, red when offline */}
-            <span className="relative flex size-2.5 shrink-0 items-center justify-center">
+            <span
+              className="relative flex shrink-0 items-center justify-center"
+              style={{ width: 10, height: 10 }}
+            >
               {presenceReady && online && (
-                <span className="absolute inline-flex size-2.5 animate-ping rounded-full bg-green-400 opacity-60" />
+                <span
+                  className="absolute inline-flex animate-ping rounded-full opacity-60"
+                  style={{ width: 10, height: 10, backgroundColor: '#4ade80' }}
+                />
               )}
               <span
-                className={cn(
-                  'relative inline-flex size-2.5 rounded-full',
-                  !presenceReady
-                    ? 'bg-gray-300'
+                className="relative inline-flex rounded-full"
+                style={{
+                  width: 10,
+                  height: 10,
+                  backgroundColor: !presenceReady
+                    ? '#d1d5db'
                     : online
-                      ? 'bg-green-400'
-                      : 'bg-red-500',
-                )}
+                      ? '#4ade80'
+                      : '#ef4444',
+                }}
               />
             </span>
             {t(online ? 'chat.online' : 'chat.offline')}

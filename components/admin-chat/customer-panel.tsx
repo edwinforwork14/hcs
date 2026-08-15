@@ -5,7 +5,6 @@ import { Clock, Globe, Mail, MapPin, Phone, User } from 'lucide-react'
 import { useLanguage } from '@/context/language-context'
 import type { UseConversations } from '@/hooks/use-conversations'
 import { formatConversationTime } from '@/lib/time'
-import { cn } from '@/lib/utils'
 
 export function CustomerPanel({ chat }: { chat: UseConversations }) {
   const { t } = useLanguage()
@@ -49,10 +48,12 @@ export function CustomerPanel({ chat }: { chat: UseConversations }) {
               </p>
               <div className="flex items-center gap-1.5">
                 <span
-                  className={cn(
-                    'size-2 rounded-full',
-                    c.status === 'open' ? 'bg-green-500' : 'bg-gray-400',
-                  )}
+                  className="rounded-full"
+                  style={{
+                    width: 8,
+                    height: 8,
+                    backgroundColor: c.status === 'open' ? '#22c55e' : '#9ca3af',
+                  }}
                 />
                 <span className="text-sm capitalize">{c.status}</span>
               </div>

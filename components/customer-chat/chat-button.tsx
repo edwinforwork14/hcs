@@ -31,14 +31,16 @@ export function ChatButton({
 
       {/* WhatsApp-style status dot */}
       <span
-        className={cn(
-          'absolute right-1.5 top-1.5 flex size-3 items-center justify-center rounded-full border-2 border-white dark:border-zinc-900',
-          !presenceReady
-            ? 'bg-gray-400'
+        className="absolute right-1.5 top-1.5 flex items-center justify-center rounded-full border-2 border-white dark:border-zinc-900"
+        style={{
+          width: 12,
+          height: 12,
+          backgroundColor: !presenceReady
+            ? '#9ca3af'
             : online
-              ? 'bg-green-500'
-              : 'bg-red-500',
-        )}
+              ? '#22c55e'
+              : '#dc2626',
+        }}
       />
     </Button>
   )
