@@ -4,10 +4,10 @@ import { Clock, Globe, Mail, MapPin, Phone, User } from 'lucide-react'
 
 import { useLanguage } from '@/context/language-context'
 import type { UseConversations } from '@/hooks/use-conversations'
-import { formatConversationTime } from '@/lib/time'
+import { formatConversationTime, formatFullDateTime } from '@/lib/time'
 
 export function CustomerPanel({ chat }: { chat: UseConversations }) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const { selectedConversation } = chat
 
   if (!selectedConversation) {
@@ -63,7 +63,11 @@ export function CustomerPanel({ chat }: { chat: UseConversations }) {
       </div>
 
       <div className="mt-auto border-t p-4 text-[11px] text-muted-foreground">
-        {t('admin.conversationStarted')} {formatConversationTime(c.created_at)}
+        <p className="uppercase tracking-wide">{t('admin.conversationStarted')}</p>
+        <p className="mt-0.5 text-sm font-semibold text-foreground">
+          {formatFullDateTime(c.created_at, language)}
+        </p>
+        <p className="mt-0.5">{formatConversationTime(c.created_at)}</p>
       </div>
     </aside>
   )

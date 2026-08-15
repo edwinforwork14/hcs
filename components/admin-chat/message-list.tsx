@@ -5,7 +5,9 @@ import { ArrowDown } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { DateDivider } from '@/components/chat/date-divider'
 import { useLanguage } from '@/context/language-context'
+import { computeMessageDividers } from '@/lib/time'
 import type { Message } from '@/types/chat'
 
 import { MessageBubble } from './message-bubble'
@@ -50,6 +52,8 @@ export function MessageList({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages.length])
 
+  const dividers = computeMessageDividers(messages)
+
   return (
     <div
       className="relative flex min-h-0 flex-1"
@@ -57,9 +61,20 @@ export function MessageList({
     >
       <ScrollArea ref={scrollRef} className="flex-1">
         <div className="flex flex-col gap-2 p-4">
-          {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} lastReadAt={lastReadAt} />
-          ))}
+          {messages.map((message, index) => {
+            const divider = dividers.find((d) => d.messageIndex === index)
+            return (
+              <div key={message.id} className="flex flex-col gap-2">
+                {divider && (
+                  <DateDivider
+                    date={message.created_at}
+                    variant={divider.variant}
+                  />
+                )}
+                <MessageBubble message={message} lastReadAt={lastReadAt} />
+              </div>
+            )
+          })}
         </div>
       </ScrollArea>
 
