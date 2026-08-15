@@ -10,6 +10,12 @@ import {
   createServiceRoleClient,
   isServerSupabaseConfigured,
 } from '@/lib/supabase/server'
+import {
+  getMessageAttachment,
+  getMessageText,
+  type ConversationWithMeta,
+  type Message,
+} from '@/types/chat'
 
 export const dynamic = 'force-dynamic'
 
@@ -93,10 +99,49 @@ export default async function AdminSupportPage() {
       .order('created_at', { ascending: true }),
   ])
 
+  // Enrich conversations server-side so unread badges, last-message previews
+  // and timestamps are part of the initial HTML (visible even before or
+  // without client-side JavaScript, e.g. with a stale cached bundle).
+  const allMessages = (messagesRes.data ?? []) as Message[]
+  const byConversation = new Map<string, Message[]>()
+  for (const message of allMessages) {
+    const list = byConversation.get(message.conversation_id) ?? []
+    list.push(message)
+    byConversation.set(message.conversation_id, list)
+  }
+
+  const enriched: ConversationWithMeta[] = (conversationsRes.data ?? []).map(
+    (conversation) => {
+      const conversationMessages =
+        byConversation.get(conversation.id) ?? []
+      const last = conversationMessages[conversationMessages.length - 1]
+      const lastAttachment = last ? getMessageAttachment(last) : null
+      const lastMessage = last
+        ? getMessageText(last) ||
+          (lastAttachment ? `\u{1F4CE} ${lastAttachment.name}` : null)
+        : null
+      const lastReadAt =
+        conversation.admin_last_read_at ?? conversation.created_at
+      const unreadCount = conversationMessages.filter(
+        (message) =>
+          message.sender_type === 'customer' &&
+          new Date(message.created_at).getTime() >
+            new Date(lastReadAt).getTime(),
+      ).length
+
+      return {
+        ...conversation,
+        lastMessage,
+        lastMessageAt: last?.created_at ?? conversation.updated_at,
+        unreadCount,
+      }
+    },
+  )
+
   return (
     <AdminSupport
-      initialConversations={conversationsRes.data ?? []}
-      initialMessages={messagesRes.data ?? []}
+      initialConversations={enriched}
+      initialMessages={allMessages}
       adminEmail={user.email}
     />
   )

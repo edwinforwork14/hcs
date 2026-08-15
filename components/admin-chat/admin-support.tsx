@@ -2,14 +2,14 @@
 
 import { useConversations } from '@/hooks/use-conversations'
 import { useAdminPresence } from '@/hooks/use-support-presence'
-import type { Conversation, Message } from '@/types/chat'
+import type { ConversationWithMeta, Message } from '@/types/chat'
 
 import { ConversationsSidebar } from './conversations-sidebar'
 import { ConversationView } from './conversation-view'
 import { CustomerPanel } from './customer-panel'
 
 interface AdminSupportProps {
-  initialConversations: Conversation[]
+  initialConversations: ConversationWithMeta[]
   initialMessages: Message[]
   adminEmail: string
 }
