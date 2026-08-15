@@ -3,7 +3,7 @@
 import { CalendarClock } from 'lucide-react'
 
 import { useLanguage } from '@/context/language-context'
-import { formatDividerLabel } from '@/lib/time'
+import { formatDividerLabel, formatFullDate } from '@/lib/time'
 
 /**
  * WhatsApp-style centered divider chip shown between groups of messages.
@@ -21,8 +21,10 @@ export function DateDivider({
   const { t, language } = useLanguage()
 
   const isMonthGap = variant === 'month-gap'
+  // The banner always shows the actual date of the following messages, so it
+  // stays in sync when the conversation dates are changed.
   const label = isMonthGap
-    ? t('chat.divider.newDate')
+    ? `${t('chat.divider.newDate')} \u00b7 ${formatFullDate(date, language)}`
     : formatDividerLabel(
         date,
         language,
