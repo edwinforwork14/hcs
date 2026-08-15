@@ -4,6 +4,10 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { apiPost } from '@/lib/api'
 import {
+  isAllowedAttachmentType,
+  MAX_ATTACHMENT_SIZE,
+} from '@/lib/attachments'
+import {
   getAnonClient,
   isSupabaseConfigured,
 } from '@/lib/supabase/client'
@@ -11,9 +15,13 @@ import { MessageSchema, type StartConversationInput } from '@/lib/validations/ch
 import type {
   ChatSession,
   Conversation,
+  CreateMessagePayload,
+  CreateMessageResult,
   Message,
   StartChatPayload,
   StartChatResult,
+  UploadPayload,
+  UploadResult,
 } from '@/types/chat'
 
 import { useRealtime } from './use-realtime'
@@ -205,6 +213,66 @@ export function useChat() {
     [session],
   )
 
+  /** Upload a file and send it (optionally with text) as a customer message. */
+  const sendAttachment = useCallback(
+    async (file: File, content = '') => {
+      if (!session) return
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        throw new Error('File too large')
+      }
+      if (!isAllowedAttachmentType(file.type)) {
+        throw new Error('File type not allowed')
+      }
+      setSending(true)
+      try {
+        // 1. Ask the server for a signed upload URL.
+        const uploadRes = await apiPost<UploadResult, UploadPayload>(
+          '/api/chat/upload',
+          {
+            conversationId: session.conversationId,
+            fileName: file.name,
+            fileType: file.type || 'application/octet-stream',
+            fileSize: file.size,
+          },
+        )
+        const upload = uploadRes.data
+        if (!upload?.uploadUrl) throw new Error('Could not prepare upload')
+
+        // 2. Upload the bytes straight to Supabase Storage.
+        const put = await fetch(upload.uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+          },
+          body: file,
+        })
+        if (!put.ok) throw new Error('Upload failed')
+
+        // 3. Create the message with the attachment metadata.
+        const messageRes = await apiPost<
+          CreateMessageResult,
+          CreateMessagePayload
+        >('/api/chat/message', {
+          conversationId: session.conversationId,
+          senderType: 'customer',
+          content: content.trim(),
+          attachment: {
+            name: file.name,
+            size: file.size,
+            type: file.type || 'application/octet-stream',
+            path: upload.path,
+          },
+        })
+        const message = messageRes.data?.message
+        if (!message) throw new Error('Could not send message')
+        setMessages((prev) => upsertMessage(prev, message))
+      } finally {
+        setSending(false)
+      }
+    },
+    [session],
+  )
+
   const resetConversation = useCallback(() => {
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(STORAGE_KEY)
@@ -223,6 +291,7 @@ export function useChat() {
     isClosed: conversation?.status === 'closed',
     startConversation,
     sendMessage,
+    sendAttachment,
     resetConversation,
   }
 }

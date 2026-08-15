@@ -47,6 +47,7 @@ export function ChatWindow({ onClose, online, presenceReady }: ChatWindowProps) 
           )}
           <MessageInput
             onSend={chat.sendMessage}
+            onSendAttachment={chat.sendAttachment}
             disabled={chat.isClosed || chat.sending}
           />
         </>

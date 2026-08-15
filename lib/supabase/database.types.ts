@@ -37,6 +37,7 @@ export type Database = {
           id: string
           conversation_id: string
           sender_type: 'customer' | 'admin'
+          /** Plain text, or JSON {"attachment": {...}, "text": "..."} for file messages. */
           content: string
           created_at: string
         }

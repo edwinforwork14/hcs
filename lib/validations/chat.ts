@@ -43,3 +43,13 @@ export const AdminLoginSchema = z.object({
 })
 
 export type AdminLoginInput = z.infer<typeof AdminLoginSchema>
+
+/** Attachment metadata attached to a message. */
+export const AttachmentSchema = z.object({
+  name: z.string().trim().min(1).max(255),
+  size: z.number().int().positive(),
+  type: z.string().trim().min(1).max(100),
+  path: z.string().trim().min(1).max(500),
+})
+
+export type AttachmentInput = z.infer<typeof AttachmentSchema>

@@ -2,17 +2,27 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { apiPost } from '@/lib/api'
+import {
+  isAllowedAttachmentType,
+  MAX_ATTACHMENT_SIZE,
+} from '@/lib/attachments'
 import {
   getSupabaseClient,
   isSupabaseConfigured,
 } from '@/lib/supabase/client'
 import { MessageSchema } from '@/lib/validations/chat'
+import { getMessageAttachment, getMessageText } from '@/types/chat'
 import type {
   Conversation,
   ConversationFilter,
   ConversationStatus,
   ConversationWithMeta,
+  CreateMessagePayload,
+  CreateMessageResult,
   Message,
+  UploadPayload,
+  UploadResult,
 } from '@/types/chat'
 
 import { useRealtime } from './use-realtime'
@@ -158,6 +168,64 @@ export function useConversations(
     [],
   )
 
+  /** Upload a file and send it (optionally with text) as an admin message. */
+  const sendAttachment = useCallback(
+    async (file: File, content = '') => {
+      const conversationId = selectedIdRef.current
+      if (!conversationId) return
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        throw new Error('File too large')
+      }
+      if (!isAllowedAttachmentType(file.type)) {
+        throw new Error('File type not allowed')
+      }
+      setSending(true)
+      try {
+        const uploadRes = await apiPost<UploadResult, UploadPayload>(
+          '/api/chat/upload',
+          {
+            conversationId,
+            fileName: file.name,
+            fileType: file.type || 'application/octet-stream',
+            fileSize: file.size,
+          },
+        )
+        const upload = uploadRes.data
+        if (!upload?.uploadUrl) throw new Error('Could not prepare upload')
+
+        const put = await fetch(upload.uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+          },
+          body: file,
+        })
+        if (!put.ok) throw new Error('Upload failed')
+
+        const messageRes = await apiPost<
+          CreateMessageResult,
+          CreateMessagePayload
+        >('/api/chat/message', {
+          conversationId,
+          senderType: 'admin',
+          content: content.trim(),
+          attachment: {
+            name: file.name,
+            size: file.size,
+            type: file.type || 'application/octet-stream',
+            path: upload.path,
+          },
+        })
+        const message = messageRes.data?.message
+        if (!message) throw new Error('Could not send message')
+        setMessages((prev) => upsertMessage(prev, message))
+      } finally {
+        setSending(false)
+      }
+    },
+    [],
+  )
+
   const setStatus = useCallback(
     async (conversationId: string, status: ConversationStatus) => {
       if (!isSupabaseConfigured) return
@@ -200,6 +268,12 @@ export function useConversations(
     return conversations.map((conversation) => {
       const conversationMessages = byConversation.get(conversation.id) ?? []
       const last = conversationMessages[conversationMessages.length - 1]
+      // Attachment-only messages show a paperclip preview instead of an empty cell.
+      const lastAttachment = last ? getMessageAttachment(last) : null
+      const lastMessage = last
+        ? getMessageText(last) ||
+          (lastAttachment ? `\u{1F4CE} ${lastAttachment.name}` : null)
+        : null
       const lastReadAt = conversation.admin_last_read_at ?? conversation.created_at
       const unreadCount = conversationMessages.filter(
         (m) =>
@@ -209,7 +283,7 @@ export function useConversations(
 
       return {
         ...conversation,
-        lastMessage: last?.content ?? null,
+        lastMessage,
         lastMessageAt: last?.created_at ?? conversation.updated_at,
         unreadCount,
       }
@@ -249,6 +323,7 @@ export function useConversations(
     realtimeStatus,
     selectConversation,
     sendMessage,
+    sendAttachment,
     setStatus,
   }
 }

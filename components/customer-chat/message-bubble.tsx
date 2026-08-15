@@ -2,10 +2,13 @@
 
 import { cn } from '@/lib/utils'
 import { formatMessageTime } from '@/lib/time'
-import type { Message } from '@/types/chat'
+import { getMessageAttachment, getMessageText, type Message } from '@/types/chat'
+
+import { AttachmentCard } from '@/components/chat/attachment-card'
 
 export function MessageBubble({ message }: { message: Message }) {
   const isCustomer = message.sender_type === 'customer'
+  const attachment = getMessageAttachment(message)
 
   return (
     <div
@@ -22,7 +25,16 @@ export function MessageBubble({ message }: { message: Message }) {
             : 'rounded-bl-sm bg-muted text-foreground',
         )}
       >
-        <p className="whitespace-pre-wrap break-words">{message.content}</p>
+        {attachment && (
+          <div className="mb-1.5">
+            <AttachmentCard attachment={attachment} tone="dark" />
+          </div>
+        )}
+        {getMessageText(message) && (
+          <p className="whitespace-pre-wrap break-words">
+            {getMessageText(message)}
+          </p>
+        )}
       </div>
       <span className="mt-0.5 text-[10px] text-muted-foreground">
         {formatMessageTime(message.created_at)}

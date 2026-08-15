@@ -19,8 +19,14 @@ import { MessageList } from './message-list'
 
 export function ConversationView({ chat }: { chat: UseConversations }) {
   const { t } = useLanguage()
-  const { selectedConversation, selectedMessages, sendMessage, setStatus, sending } =
-    chat
+  const {
+    selectedConversation,
+    selectedMessages,
+    sendMessage,
+    sendAttachment,
+    setStatus,
+    sending,
+  } = chat
 
   if (!selectedConversation) {
     return (
@@ -89,7 +95,11 @@ export function ConversationView({ chat }: { chat: UseConversations }) {
 
       <MessageList messages={selectedMessages} />
 
-      <MessageInput onSend={sendMessage} disabled={sending} />
+      <MessageInput
+        onSend={sendMessage}
+        onSendAttachment={sendAttachment}
+        disabled={sending}
+      />
     </main>
   )
 }

@@ -5,9 +5,17 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {
-    root: path.join(__dirname),
-  },
+  // NOTE: dev runs with --webpack (Turbopack has a CSS parsing bug on this
+  // machine), so no `turbopack` block here. An explicit turbopack.root made
+  // Next's config watcher loop (“Found a change in next.config.mjs” restarts)
+  // because stray lockfiles in the user HOME confuse workspace-root inference.
+  //
+  // outputFileTracingRoot: stray lockfiles in the user HOME (e.g.
+  // C:\Users\Edwin\pnpm-lock.yaml) make Next infer the HOME as the workspace
+  // root. The dev watcher then watches the whole HOME tree and recompiles on
+  // every unrelated file write (temp files, browser cache, …), which shows up
+  // as constant page reloads. Pin the root to this project directory.
+  outputFileTracingRoot: __dirname,
   typescript: {
     // strict types enabled
   },
@@ -32,4 +40,3 @@ const nextConfig = {
 }
 
 export default nextConfig
-
