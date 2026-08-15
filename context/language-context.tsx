@@ -171,6 +171,23 @@ const translations = {
     "admin.signIn": "Sign in",
     "admin.backToSite": "Back to site",
     "admin.signInFailed": "Sign in failed. Please try again.",
+
+    // Date change simulator (admin)
+    "datechange.title": "Change conversation dates",
+    "datechange.subtitle": "Pick a conversation and a target date to simulate an old chat. All message timestamps shift proportionally.",
+    "datechange.backToDashboard": "Back to dashboard",
+    "datechange.started": "Started",
+    "datechange.lastActivity": "Last activity",
+    "datechange.status": "Status",
+    "datechange.targetDate": "Target date & time",
+    "datechange.note": "The conversation and every message move to that date, keeping the original spacing between messages.",
+    "datechange.apply": "Apply date change",
+    "datechange.applying": "Applying...",
+    "datechange.success": "Dates changed to",
+    "datechange.result": "Conversation moved to",
+    "datechange.messages": "messages",
+    "datechange.invalidDate": "Invalid date",
+    "datechange.error": "Could not change the dates. Try again.",
   },
   es: {
     // Header
@@ -331,7 +348,24 @@ const translations = {
     "admin.signingIn": "Iniciando sesión...",
     "admin.signIn": "Iniciar sesión",
     "admin.backToSite": "Volver al sitio",
-    "admin.signInFailed": "Error al iniciar sesión. Inténtalo de nuevo."
+    "admin.signInFailed": "Error al iniciar sesión. Inténtalo de nuevo.",
+
+    // Simulador de fechas (admin)
+    "datechange.title": "Cambiar fechas de conversaciones",
+    "datechange.subtitle": "Elige una conversación y una fecha objetivo para simular un chat antiguo. Todas las fechas de los mensajes se desplazan proporcionalmente.",
+    "datechange.backToDashboard": "Volver al panel",
+    "datechange.started": "Iniciada",
+    "datechange.lastActivity": "Última actividad",
+    "datechange.status": "Estado",
+    "datechange.targetDate": "Fecha y hora objetivo",
+    "datechange.note": "La conversación y todos sus mensajes se mueven a esa fecha, conservando el espaciado original entre mensajes.",
+    "datechange.apply": "Aplicar cambio de fecha",
+    "datechange.applying": "Aplicando...",
+    "datechange.success": "Fechas cambiadas a",
+    "datechange.result": "Conversación movida a",
+    "datechange.messages": "mensajes",
+    "datechange.invalidDate": "Fecha inválida",
+    "datechange.error": "No se pudieron cambiar las fechas. Inténtalo de nuevo."
   },
 }
 

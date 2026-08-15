@@ -55,12 +55,18 @@ create table if not exists public.admins (
 -- ------------------------------------------------------------
 -- Keep conversations.updated_at fresh
 -- ------------------------------------------------------------
+-- Improved version: only stamp now() when the caller did not explicitly set
+-- updated_at. This lets the admin date-change simulator (/admin/datechange)
+-- shift updated_at together with created_at; regular updates (which omit
+-- updated_at) still get now() automatically.
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
 as $$
 begin
-  new.updated_at = now();
+  if new.updated_at is not distinct from old.updated_at then
+    new.updated_at = now();
+  end if;
   return new;
 end;
 $$;
