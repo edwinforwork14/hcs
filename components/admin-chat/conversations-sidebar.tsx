@@ -9,7 +9,6 @@ import type { UseConversations } from '@/hooks/use-conversations'
 import { SignOutButton } from './sign-out-button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { ReadIcon } from '@/components/chat/read-icon'
 import { cn } from '@/lib/utils'
@@ -97,8 +96,24 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
 
       <Separator />
 
-      <ScrollArea className="min-h-0 flex-1" style={{ flex: '1 1 0%', minHeight: 0 }}>
-        <div className="flex flex-col p-2" style={{ display: 'flex', flexDirection: 'column' }}>
+      <div
+        className="min-h-0 flex-1"
+        style={{
+          flex: '1 1 0%',
+          minHeight: 0,
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        <div
+          className="flex flex-col p-2"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0,
+            maxWidth: '100%',
+          }}
+        >
           {conversations.length === 0 && (
             <p className="p-4 text-center text-xs text-muted-foreground">
               {t('admin.noConversations')}
@@ -113,9 +128,19 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                 'flex w-full cursor-pointer flex-col gap-1 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-muted',
                 selectedId === c.id && 'bg-muted',
               )}
-              style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'stretch',
+                width: '100%',
+                minWidth: 0,
+                maxWidth: '100%',
+              }}
             >
-              <div className="flex items-center justify-between gap-2">
+              <div
+                className="flex items-center justify-between gap-2"
+                style={{ minWidth: 0, width: '100%' }}
+              >
                 <span className="flex min-w-0 items-center gap-1.5">
                   <span
                     className="rounded-full"
@@ -153,7 +178,10 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                   <ReadIcon read size={15} />
                 )}
               </div>
-              <div className="flex items-center justify-between gap-2">
+              <div
+                className="flex items-center justify-between gap-2"
+                style={{ minWidth: 0, width: '100%' }}
+              >
                 <span className="truncate text-xs text-muted-foreground">
                   {c.lastMessage ?? t('admin.noMessagesYet')}
                 </span>
@@ -167,7 +195,7 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
             </button>
           ))}
         </div>
-      </ScrollArea>
+      </div>
     </aside>
   )
 }
