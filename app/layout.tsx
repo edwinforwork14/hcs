@@ -35,7 +35,8 @@ export default function RootLayout({
           <Toaster position="top-right" />
           <ChatWidget />
         </LanguageProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {process.env.NODE_ENV === 'production' &&
+          process.env.VERCEL === '1' && <Analytics />}
       </body>
     </html>
   )

@@ -62,6 +62,9 @@ export function getAnonClient() {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
+        // Distinct storage key so GoTrueClient does not flag this as a second
+        // instance sharing the admin session's key (cosmetic warning only).
+        storageKey: 'sb-anon-no-persist',
       },
     })
   }
