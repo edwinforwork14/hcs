@@ -16,6 +16,10 @@ const nextConfig = {
   // every unrelated file write (temp files, browser cache, …), which shows up
   // as constant page reloads. Pin the root to this project directory.
   outputFileTracingRoot: __dirname,
+  // Production builds run with Turbopack (Next 16 default on Vercel). The
+  // `webpack` config below is dev-only (watcher ignores), so declare an
+  // empty turbopack config to satisfy the build.
+  turbopack: {},
   typescript: {
     // strict types enabled
   },
@@ -33,7 +37,12 @@ const nextConfig = {
       : []
     config.watchOptions = {
       ...config.watchOptions,
-      ignored: [...existingIgnored, '**/.freebuff/**', '**/tsconfig.tsbuildinfo'],
+      ignored: [
+        ...existingIgnored,
+        '**/.freebuff/**',
+        '**/.next/**',
+        '**/tsconfig.tsbuildinfo',
+      ],
     }
     return config
   },
