@@ -3,7 +3,6 @@
 import { Lock, LockOpen, MessageSquareText } from 'lucide-react'
 
 import type { UseConversations } from '@/hooks/use-conversations'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useLanguage } from '@/context/language-context'
 import {
@@ -66,9 +65,16 @@ export function ConversationView({ chat }: { chat: UseConversations }) {
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Badge variant={isOpen ? 'default' : 'secondary'}>
+          <span
+            className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+            style={{
+              backgroundColor: isOpen ? '#22c55e' : '#f3f4f6',
+              color: isOpen ? '#ffffff' : '#374151',
+              borderColor: isOpen ? '#16a34a' : '#d1d5db',
+            }}
+          >
             {isOpen ? t('admin.badge.open') : t('admin.badge.closed')}
-          </Badge>
+          </span>
           <Button
             type="button"
             variant="outline"
