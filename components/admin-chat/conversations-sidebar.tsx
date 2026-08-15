@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckCheck, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 
 import { LanguageToggle } from '@/components/language-toggle'
 import { useLanguage } from '@/context/language-context'
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import { ReadIcon } from '@/components/chat/read-icon'
 import { cn } from '@/lib/utils'
 import { formatConversationTime } from '@/lib/time'
 import type { ConversationFilter } from '@/types/chat'
@@ -117,7 +118,7 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
               <div className="flex items-center justify-between gap-2">
                 <span className="flex min-w-0 items-center gap-1.5">
                   <span
-                    className="shrink-0 rounded-full"
+                    className="rounded-full"
                     title={
                       c.status === 'open'
                         ? t('admin.badge.open')
@@ -126,6 +127,7 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                     style={{
                       width: 8,
                       height: 8,
+                      flexShrink: 0,
                       backgroundColor:
                         c.status === 'open' ? '#22c55e' : '#9ca3af',
                     }}
@@ -136,29 +138,29 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                 </span>
                 {c.unreadCount > 0 ? (
                   <Badge
-                    className="shrink-0 rounded-full px-1.5 text-[10px]"
+                    className="rounded-full px-1.5 text-[10px]"
                     style={{
                       backgroundColor: '#dc2626',
                       color: '#ffffff',
                       minWidth: 18,
                       height: 18,
+                      flexShrink: 0,
                     }}
                   >
                     {c.unreadCount}
                   </Badge>
                 ) : (
-                  <CheckCheck
-                    aria-label="Read"
-                    className="shrink-0"
-                    style={{ width: 15, height: 15, color: '#2563eb' }}
-                  />
+                  <ReadIcon read size={15} />
                 )}
               </div>
               <div className="flex items-center justify-between gap-2">
                 <span className="truncate text-xs text-muted-foreground">
                   {c.lastMessage ?? t('admin.noMessagesYet')}
                 </span>
-                <span className="shrink-0 text-[10px] text-muted-foreground">
+                <span
+                  className="text-[10px] text-muted-foreground"
+                  style={{ flexShrink: 0 }}
+                >
                   {formatConversationTime(c.lastMessageAt)}
                 </span>
               </div>

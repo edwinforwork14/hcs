@@ -1,12 +1,11 @@
 'use client'
 
-import { Check, CheckCheck } from 'lucide-react'
-
 import { cn } from '@/lib/utils'
 import { formatMessageTime } from '@/lib/time'
 import { getMessageAttachment, getMessageText, type Message } from '@/types/chat'
 
 import { AttachmentCard } from '@/components/chat/attachment-card'
+import { ReadIcon } from '@/components/chat/read-icon'
 
 interface MessageBubbleProps {
   message: Message
@@ -56,18 +55,7 @@ export function MessageBubble({ message, lastReadAt }: MessageBubbleProps) {
       </div>
       <span className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
         {formatMessageTime(message.created_at)}
-        {isCustomer &&
-          (isRead ? (
-            <CheckCheck
-              aria-label="Read"
-              style={{ width: 13, height: 13, color: '#2563eb' }}
-            />
-          ) : (
-            <Check
-              aria-label="Not read"
-              style={{ width: 13, height: 13, color: '#9ca3af' }}
-            />
-          ))}
+        {isCustomer && <ReadIcon read={isRead} size={13} />}
       </span>
     </div>
   )
