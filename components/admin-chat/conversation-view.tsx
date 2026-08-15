@@ -102,7 +102,10 @@ export function ConversationView({ chat }: { chat: UseConversations }) {
         </div>
       </header>
 
-      <MessageList messages={selectedMessages} />
+      <MessageList
+        messages={selectedMessages}
+        lastReadAt={selectedConversation.admin_last_read_at ?? null}
+      />
 
       <MessageInput
         onSend={sendMessage}

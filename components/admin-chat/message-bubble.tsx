@@ -1,14 +1,32 @@
 'use client'
 
+import { Check, CheckCheck } from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 import { formatMessageTime } from '@/lib/time'
 import { getMessageAttachment, getMessageText, type Message } from '@/types/chat'
 
 import { AttachmentCard } from '@/components/chat/attachment-card'
 
-export function MessageBubble({ message }: { message: Message }) {
+interface MessageBubbleProps {
+  message: Message
+  /**
+   * `admin_last_read_at` of the conversation (from the database).
+   * A customer message is "read" when it was created at or before this
+   * timestamp; otherwise it is still unread.
+   */
+  lastReadAt: string | null
+}
+
+export function MessageBubble({ message, lastReadAt }: MessageBubbleProps) {
   const isCustomer = message.sender_type === 'customer'
   const attachment = getMessageAttachment(message)
+
+  // Only customer → admin messages carry a read state (has the admin seen it?).
+  const isRead =
+    isCustomer &&
+    !!lastReadAt &&
+    new Date(message.created_at).getTime() <= new Date(lastReadAt).getTime()
 
   return (
     <div
@@ -36,8 +54,20 @@ export function MessageBubble({ message }: { message: Message }) {
           </p>
         )}
       </div>
-      <span className="mt-0.5 text-[10px] text-muted-foreground">
+      <span className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
         {formatMessageTime(message.created_at)}
+        {isCustomer &&
+          (isRead ? (
+            <CheckCheck
+              aria-label="Read"
+              style={{ width: 13, height: 13, color: '#2563eb' }}
+            />
+          ) : (
+            <Check
+              aria-label="Not read"
+              style={{ width: 13, height: 13, color: '#9ca3af' }}
+            />
+          ))}
       </span>
     </div>
   )

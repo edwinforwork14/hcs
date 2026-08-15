@@ -1,6 +1,6 @@
 'use client'
 
-import { Search } from 'lucide-react'
+import { CheckCheck, Search } from 'lucide-react'
 
 import { LanguageToggle } from '@/components/language-toggle'
 import { useLanguage } from '@/context/language-context'
@@ -134,7 +134,7 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                     {c.customer_name}
                   </span>
                 </span>
-                {c.unreadCount > 0 && (
+                {c.unreadCount > 0 ? (
                   <Badge
                     className="shrink-0 rounded-full px-1.5 text-[10px]"
                     style={{
@@ -146,6 +146,12 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                   >
                     {c.unreadCount}
                   </Badge>
+                ) : (
+                  <CheckCheck
+                    aria-label="Read"
+                    className="shrink-0"
+                    style={{ width: 15, height: 15, color: '#2563eb' }}
+                  />
                 )}
               </div>
               <div className="flex items-center justify-between gap-2">

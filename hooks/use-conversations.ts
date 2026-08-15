@@ -69,6 +69,27 @@ export function useConversations(
     selectedIdRef.current = selectedId
   }, [selectedId])
 
+  // The conversation open on first load is already being read by the admin:
+  // persist that in the database so the read state survives a reload.
+  const markRead = useCallback(async (conversationId: string) => {
+    if (!isSupabaseConfigured) return
+    const supabase = getSupabaseClient()
+    const { data, error } = await supabase
+      .from('conversations')
+      .update({ admin_last_read_at: new Date().toISOString() })
+      .eq('id', conversationId)
+      .select()
+      .single()
+    if (!error && data) {
+      setConversations((prev) => upsertConversation(prev, data))
+    }
+  }, [])
+
+  useEffect(() => {
+    if (selectedId) markRead(selectedId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Realtime: new/updated messages.
   const messagePayload = useRealtime('messages', undefined, true)
   useEffect(() => {
@@ -98,20 +119,6 @@ export function useConversations(
     if (!updated?.id) return
     setConversations((prev) => upsertConversation(prev, updated))
   }, [conversationPayload.payload])
-
-  const markRead = useCallback(async (conversationId: string) => {
-    if (!isSupabaseConfigured) return
-    const supabase = getSupabaseClient()
-    const { data, error } = await supabase
-      .from('conversations')
-      .update({ admin_last_read_at: new Date().toISOString() })
-      .eq('id', conversationId)
-      .select()
-      .single()
-    if (!error && data) {
-      setConversations((prev) => upsertConversation(prev, data))
-    }
-  }, [])
 
   const selectConversation = useCallback(
     async (conversationId: string) => {

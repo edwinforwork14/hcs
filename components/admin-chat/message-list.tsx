@@ -10,7 +10,13 @@ import type { Message } from '@/types/chat'
 
 import { MessageBubble } from './message-bubble'
 
-export function MessageList({ messages }: { messages: Message[] }) {
+export function MessageList({
+  messages,
+  lastReadAt,
+}: {
+  messages: Message[]
+  lastReadAt: string | null
+}) {
   const { t } = useLanguage()
   const scrollRef = useRef<HTMLDivElement>(null)
   const nearBottomRef = useRef(true)
@@ -52,7 +58,7 @@ export function MessageList({ messages }: { messages: Message[] }) {
       <ScrollArea ref={scrollRef} className="flex-1">
         <div className="flex flex-col gap-2 p-4">
           {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
+            <MessageBubble key={message.id} message={message} lastReadAt={lastReadAt} />
           ))}
         </div>
       </ScrollArea>
