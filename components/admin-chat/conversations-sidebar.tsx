@@ -36,7 +36,10 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
   } = chat
 
   return (
-    <aside className="flex w-72 shrink-0 flex-col border-r bg-muted/30">
+    <aside
+      className="flex w-72 shrink-0 flex-col border-r bg-muted/30"
+      style={{ flexShrink: 0, width: 288 }}
+    >
       <div className="p-3">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold">{t('admin.chats')}</h2>
@@ -93,8 +96,8 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
 
       <Separator />
 
-      <ScrollArea className="min-h-0 flex-1">
-        <div className="flex flex-col p-2">
+      <ScrollArea className="min-h-0 flex-1" style={{ flex: '1 1 0%', minHeight: 0 }}>
+        <div className="flex flex-col p-2" style={{ display: 'flex', flexDirection: 'column' }}>
           {conversations.length === 0 && (
             <p className="p-4 text-center text-xs text-muted-foreground">
               {t('admin.noConversations')}
@@ -109,41 +112,48 @@ export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
                 'flex w-full cursor-pointer flex-col gap-1 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-muted',
                 selectedId === c.id && 'bg-muted',
               )}
+              style={{ display: 'flex', flexDirection: 'column', width: '100%' }}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-medium">
-                  {c.customer_name}
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <span
+                    className="shrink-0 rounded-full"
+                    title={
+                      c.status === 'open'
+                        ? t('admin.badge.open')
+                        : t('admin.badge.closed')
+                    }
+                    style={{
+                      width: 8,
+                      height: 8,
+                      backgroundColor:
+                        c.status === 'open' ? '#22c55e' : '#9ca3af',
+                    }}
+                  />
+                  <span className="truncate text-sm font-medium">
+                    {c.customer_name}
+                  </span>
                 </span>
-                <span className="shrink-0 text-[10px] text-muted-foreground">
-                  {formatConversationTime(c.lastMessageAt)}
-                </span>
+                {c.unreadCount > 0 && (
+                  <Badge
+                    className="shrink-0 rounded-full px-1.5 text-[10px]"
+                    style={{
+                      backgroundColor: '#dc2626',
+                      color: '#ffffff',
+                      minWidth: 18,
+                      height: 18,
+                    }}
+                  >
+                    {c.unreadCount}
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center justify-between gap-2">
                 <span className="truncate text-xs text-muted-foreground">
                   {c.lastMessage ?? t('admin.noMessagesYet')}
                 </span>
-                <span className="flex shrink-0 items-center gap-1.5">
-                  {c.unreadCount > 0 && (
-                    <Badge
-                      className="rounded-full px-1.5 text-[10px]"
-                      style={{
-                        backgroundColor: '#dc2626',
-                        color: '#ffffff',
-                        minWidth: 18,
-                        height: 18,
-                      }}
-                    >
-                      {c.unreadCount}
-                    </Badge>
-                  )}
-                  <span
-                    className="rounded-full"
-                    style={{
-                      width: 8,
-                      height: 8,
-                      backgroundColor: c.status === 'open' ? '#22c55e' : '#9ca3af',
-                    }}
-                  />
+                <span className="shrink-0 text-[10px] text-muted-foreground">
+                  {formatConversationTime(c.lastMessageAt)}
                 </span>
               </div>
             </button>

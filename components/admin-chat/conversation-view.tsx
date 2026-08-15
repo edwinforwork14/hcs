@@ -48,7 +48,10 @@ export function ConversationView({ chat }: { chat: UseConversations }) {
   const isOpen = selectedConversation.status === 'open'
 
   return (
-    <main className="flex min-w-0 flex-1 flex-col">
+    <main
+      className="flex min-w-0 flex-1 flex-col"
+      style={{ display: 'flex', flexDirection: 'column', flex: '1 1 0%', minWidth: 0 }}
+    >
       <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">

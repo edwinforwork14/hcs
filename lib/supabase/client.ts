@@ -12,7 +12,17 @@ export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 /** Presence channel shared by the customer widget and the admin dashboard. */
 export const SUPPORT_PRESENCE_CHANNEL = 'support-presence'
 
-let client: ReturnType<typeof createBrowserClient<Database>> | null = null
+/**
+ * The singleton lives on `globalThis` so that every copy of this module
+ * (HMR, duplicate import paths) shares ONE GoTrueClient per storage key.
+ * Otherwise Supabase logs "Multiple GoTrueClient instances detected" and
+ * auth/realtime can misbehave.
+ */
+const GLOBAL_KEY = '__hcs_supabase_client__'
+const GLOBAL_ANON_KEY = '__hcs_supabase_anon_client__'
+
+type BrowserClient = ReturnType<typeof createBrowserClient<Database>>
+type AnonClient = ReturnType<typeof createAnonClient<Database>>
 
 /**
  * Returns the singleton browser Supabase client (session-aware).
@@ -24,13 +34,14 @@ export function getSupabaseClient() {
       'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.',
     )
   }
-  if (!client) {
-    client = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+  const g = globalThis as typeof globalThis & {
+    [GLOBAL_KEY]?: BrowserClient
   }
-  return client
+  if (!g[GLOBAL_KEY]) {
+    g[GLOBAL_KEY] = createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+  }
+  return g[GLOBAL_KEY]
 }
-
-let anonClient: ReturnType<typeof createAnonClient<Database>> | null = null
 
 /**
  * Returns a session-less browser client that always acts as the `anon` role.
@@ -43,13 +54,16 @@ export function getAnonClient() {
       'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.',
     )
   }
-  if (!anonClient) {
-    anonClient = createAnonClient<Database>(supabaseUrl, supabaseAnonKey, {
+  const g = globalThis as typeof globalThis & {
+    [GLOBAL_ANON_KEY]?: AnonClient
+  }
+  if (!g[GLOBAL_ANON_KEY]) {
+    g[GLOBAL_ANON_KEY] = createAnonClient<Database>(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
       },
     })
   }
-  return anonClient
+  return g[GLOBAL_ANON_KEY]
 }

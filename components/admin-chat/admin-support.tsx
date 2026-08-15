@@ -23,7 +23,16 @@ export function AdminSupport({
   useAdminPresence(adminEmail)
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background text-foreground">
+    <div
+      className="flex h-dvh overflow-hidden bg-background text-foreground"
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        height: '100vh',
+        overflow: 'hidden',
+      }}
+    >
       <ConversationsSidebar chat={chat} />
       <ConversationView chat={chat} />
       <CustomerPanel chat={chat} />
