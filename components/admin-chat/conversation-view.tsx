@@ -61,9 +61,6 @@ export function ConversationView({ chat }: { chat: UseConversations }) {
             <p className="truncate text-sm font-semibold leading-tight">
               {selectedConversation.customer_name}
             </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {selectedConversation.customer_email}
-            </p>
           </div>
         </div>
 
