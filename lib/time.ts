@@ -1,5 +1,4 @@
 import {
-  differenceInCalendarMonths,
   format,
   formatDistanceToNow,
   isSameDay,
@@ -71,14 +70,12 @@ export function formatDividerLabel(
 export interface MessageDivider {
   /** Index of the message before which the divider must render. */
   messageIndex: number
-  variant: 'day' | 'month-gap'
+  variant: 'day'
 }
 
 /**
  * Computes WhatsApp-style date dividers for a message list:
- * - a `day` divider whenever the day changes between two consecutive messages,
- * - a `month-gap` divider when more than a month passes between messages,
- *   signaling that the following messages belong to a different date.
+ * a `day` divider whenever the day changes between two consecutive messages.
  */
 export function computeMessageDividers(
   messages: { created_at: string }[],
@@ -92,9 +89,7 @@ export function computeMessageDividers(
     }
     const previousDate = new Date(previous.created_at)
     const currentDate = new Date(message.created_at)
-    if (differenceInCalendarMonths(currentDate, previousDate) >= 1) {
-      dividers.push({ messageIndex: index, variant: 'month-gap' })
-    } else if (!isSameDay(previousDate, currentDate)) {
+    if (!isSameDay(previousDate, currentDate)) {
       dividers.push({ messageIndex: index, variant: 'day' })
     }
   })

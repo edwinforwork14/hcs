@@ -65,12 +65,7 @@ export function MessageList({
             const divider = dividers.find((d) => d.messageIndex === index)
             return (
               <div key={message.id} className="flex flex-col gap-2">
-                {divider && (
-                  <DateDivider
-                    date={message.created_at}
-                    variant={divider.variant}
-                  />
-                )}
+                {divider && <DateDivider date={message.created_at} />}
                 <MessageBubble message={message} lastReadAt={lastReadAt} />
               </div>
             )

@@ -1,74 +1,335 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import { Clock, Globe, Mail, MapPin, Phone, User } from 'lucide-react'
 
 import { useLanguage } from '@/context/language-context'
 import type { UseConversations } from '@/hooks/use-conversations'
 import { formatConversationTime, formatFullDateTime } from '@/lib/time'
 
+const PANEL_WIDTH = 288
+const PALETTE_WIDTH = 44
+const TRANSITION_MS = 300
+
+/** Chevron pointing left — opens the collapsed panel (expands to the left). */
+function ChevronLeft({ color }: { color: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ display: 'block' }}
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  )
+}
+
+/** Chevron pointing right — collapses the open panel. */
+function ChevronRight({ color }: { color: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ display: 'block' }}
+    >
+      <path d="m9 18 6-6-6-6" />
+    </svg>
+  )
+}
+
+/** Plain user silhouette used on the collapsed palette. */
+function UserIcon({ color }: { color: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ display: 'block' }}
+    >
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  )
+}
+
 export function CustomerPanel({ chat }: { chat: UseConversations }) {
   const { t, language } = useLanguage()
   const { selectedConversation } = chat
+  const [collapsed, setCollapsed] = useState(false)
+  // Content stays mounted while the panel slides shut, so the info is clipped
+  // away smoothly; only afterwards is it swapped for the palette.
+  const [showingContent, setShowingContent] = useState(true)
+  const timerRef = useRef<number | null>(null)
 
-  if (!selectedConversation) {
-    return <aside className="hidden w-72 shrink-0 border-l lg:block" />
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+    }
+  }, [])
+
+  const toggle = () => {
+    if (collapsed) {
+      // Opening: show the content immediately so it slides out with the panel.
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current)
+        timerRef.current = null
+      }
+      setShowingContent(true)
+      setCollapsed(false)
+    } else {
+      // Collapsing: let the panel slide shut first, then swap in the palette.
+      setCollapsed(true)
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+      timerRef.current = window.setTimeout(() => {
+        setShowingContent(false)
+        timerRef.current = null
+      }, TRANSITION_MS)
+    }
   }
 
   const c = selectedConversation
-  const rows = [
-    { icon: User, label: t('admin.field.name'), value: c.customer_name },
-    { icon: Mail, label: t('admin.field.email'), value: c.customer_email },
-    { icon: Phone, label: t('admin.field.phone'), value: c.customer_phone ?? '—' },
-    { icon: MapPin, label: t('admin.field.location'), value: c.customer_location ?? '—' },
-    { icon: Globe, label: t('admin.field.language'), value: c.customer_language ?? '—' },
-  ]
+  const rows = c
+    ? [
+        { icon: User, label: t('admin.field.name'), value: c.customer_name },
+        { icon: Mail, label: t('admin.field.email'), value: c.customer_email },
+        {
+          icon: Phone,
+          label: t('admin.field.phone'),
+          value: c.customer_phone ?? '—',
+        },
+        {
+          icon: MapPin,
+          label: t('admin.field.location'),
+          value: c.customer_location ?? '—',
+        },
+        {
+          icon: Globe,
+          label: t('admin.field.language'),
+          value: c.customer_language ?? '—',
+        },
+      ]
+    : []
+
+  const rowStyle = {
+    display: 'flex' as const,
+    alignItems: 'flex-start' as const,
+    gap: 10,
+  }
+  const iconStyle = {
+    width: 16,
+    height: 16,
+    flexShrink: 0,
+    marginTop: 2,
+    color: '#6b7280',
+  }
+  const labelStyle = {
+    fontSize: 11,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.05em',
+    color: '#6b7280',
+    margin: 0,
+  }
+  const valueStyle = {
+    fontSize: 14,
+    margin: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as const,
+  }
 
   return (
-    <aside className="hidden w-72 shrink-0 flex-col border-l bg-muted/30 lg:flex">
-      <div className="p-4">
-        <h3 className="text-sm font-semibold">{t('admin.customer')}</h3>
-        <div className="mt-4 space-y-3.5">
-          {rows.map((row) => (
-            <div key={row.label} className="flex items-start gap-2.5">
-              <row.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-              <div className="min-w-0">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                  {row.label}
-                </p>
-                <p className="truncate text-sm">{row.value}</p>
-              </div>
-            </div>
-          ))}
-
-          <div className="flex items-start gap-2.5">
-            <Clock className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-            <div className="min-w-0">
-              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
-                {t('admin.field.status')}
-              </p>
-              <div className="flex items-center gap-1.5">
-                <span
-                  className="rounded-full"
-                  style={{
-                    width: 8,
-                    height: 8,
-                    backgroundColor: c.status === 'open' ? '#22c55e' : '#9ca3af',
-                  }}
-                />
-                <span className="text-sm capitalize">{c.status}</span>
-              </div>
-            </div>
+    <aside
+      style={{
+        width: collapsed ? PALETTE_WIDTH : PANEL_WIDTH,
+        transition: `width ${TRANSITION_MS}ms ease`,
+        display: 'flex',
+        flexDirection: 'column',
+        flexShrink: 0,
+        overflow: 'hidden',
+        borderLeft: '1px solid #e5e7eb',
+        backgroundColor: '#f9fafb',
+      }}
+    >
+      {showingContent ? (
+        <div
+          style={{
+            width: PANEL_WIDTH,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px 10px 0 16px',
+            }}
+          >
+            <h3 style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>
+              {t('admin.customer')}
+            </h3>
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={t('admin.hidePanel')}
+              title={t('admin.hidePanel')}
+              style={{
+                width: 28,
+                height: 28,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 6,
+                border: 'none',
+                backgroundColor: 'transparent',
+                cursor: 'pointer',
+                flexShrink: 0,
+              }}
+            >
+              <ChevronRight color="#6b7280" />
+            </button>
           </div>
-        </div>
-      </div>
 
-      <div className="mt-auto border-t p-4 text-[11px] text-muted-foreground">
-        <p className="uppercase tracking-wide">{t('admin.conversationStarted')}</p>
-        <p className="mt-0.5 text-sm font-semibold text-foreground">
-          {formatFullDateTime(c.created_at, language)}
-        </p>
-        <p className="mt-0.5">{formatConversationTime(c.created_at)}</p>
-      </div>
+          {c ? (
+            <>
+              <div
+                style={{
+                  padding: '12px 16px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 14,
+                }}
+              >
+                {rows.map((row) => (
+                  <div key={row.label} style={rowStyle}>
+                    <row.icon style={iconStyle} />
+                    <div style={{ minWidth: 0 }}>
+                      <p style={labelStyle}>{row.label}</p>
+                      <p style={valueStyle}>{row.value}</p>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={rowStyle}>
+                  <Clock style={iconStyle} />
+                  <div style={{ minWidth: 0 }}>
+                    <p style={labelStyle}>{t('admin.field.status')}</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          flexShrink: 0,
+                          backgroundColor:
+                            c.status === 'open' ? '#22c55e' : '#9ca3af',
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontSize: 14,
+                          textTransform: 'capitalize',
+                        }}
+                      >
+                        {c.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: 'auto',
+                  borderTop: '1px solid #e5e7eb',
+                  padding: 16,
+                }}
+              >
+                <p style={labelStyle}>{t('admin.conversationStarted')}</p>
+                <p
+                  style={{
+                    margin: '2px 0 0',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: '#111827',
+                  }}
+                >
+                  {formatFullDateTime(c.created_at, language)}
+                </p>
+                <p style={{ margin: '2px 0 0', fontSize: 12, color: '#6b7280' }}>
+                  {formatConversationTime(c.created_at)}
+                </p>
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: 16, fontSize: 12, color: '#6b7280' }}>
+              {t('admin.noSelection')}
+            </div>
+          )}
+        </div>
+      ) : (
+        /* Mini palette sticking out from the right edge with the reopen arrow. */
+        <div
+          style={{
+            width: PALETTE_WIDTH,
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            paddingTop: 10,
+            paddingBottom: 10,
+            gap: 12,
+            background: 'linear-gradient(180deg, #D90429 0%, #FF4D6A 100%)',
+            borderTopLeftRadius: 10,
+            borderBottomLeftRadius: 10,
+            boxShadow: '-2px 0 8px rgba(0,0,0,0.12)',
+          }}
+        >
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={t('admin.showPanel')}
+            title={t('admin.showPanel')}
+            style={{
+              width: 32,
+              height: 32,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.25)',
+              border: 'none',
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <ChevronLeft color="#ffffff" />
+          </button>
+          <UserIcon color="#ffffff" />
+        </div>
+      )}
     </aside>
   )
 }
