@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { format } from 'date-fns'
-import { ArrowLeft, CalendarClock, CheckCircle2, Loader2 } from 'lucide-react'
+import { ArrowLeft, CalendarClock, CheckCircle2, Loader2, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { LanguageToggle } from '@/components/language-toggle'
@@ -39,6 +39,7 @@ export function DateChanger({
   const [time, setTime] = useState('09:00')
   const [applying, setApplying] = useState(false)
   const [result, setResult] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   const selected = conversations.find((c) => c.id === selectedId) ?? null
 
@@ -92,6 +93,32 @@ export function DateChanger({
       toast.error(t('datechange.error'))
     } finally {
       setApplying(false)
+    }
+  }
+
+  const deleteConversation = async () => {
+    if (!selectedId) return
+    const confirmed = window.confirm(t('datechange.deleteConfirm'))
+    if (!confirmed) return
+
+    setDeleting(true)
+    try {
+      const res = await fetch('/api/chat/delete', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: selectedId }),
+      })
+
+      if (!res.ok) throw new Error('Delete failed')
+
+      toast.success(t('datechange.deleteSuccess'))
+      setSelectedId(null)
+      setResult(null)
+      await refresh()
+    } catch {
+      toast.error(t('datechange.deleteError'))
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -242,6 +269,27 @@ export function DateChanger({
                   </>
                 )}
               </button>
+
+              <div className="border-t pt-4">
+                <button
+                  type="button"
+                  onClick={deleteConversation}
+                  disabled={deleting}
+                  className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-destructive/30 bg-destructive/10 px-4 py-2.5 text-sm font-medium text-destructive transition-opacity hover:bg-destructive/20 disabled:opacity-60"
+                >
+                  {deleting ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" />
+                      {t('datechange.deleting')}
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="size-4" />
+                      {t('datechange.delete')}
+                    </>
+                  )}
+                </button>
+              </div>
 
               {result && (
                 <div className="flex items-start gap-2 rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">

@@ -192,6 +192,11 @@ const translations = {
     "datechange.messages": "messages",
     "datechange.invalidDate": "Invalid date",
     "datechange.error": "Could not change the dates. Try again.",
+    "datechange.delete": "Delete conversation",
+    "datechange.deleteConfirm": "Are you sure you want to delete this conversation? This action cannot be undone.",
+    "datechange.deleting": "Deleting...",
+    "datechange.deleteSuccess": "Conversation deleted successfully",
+    "datechange.deleteError": "Could not delete the conversation. Try again.",
   },
   es: {
     // Header
@@ -373,7 +378,12 @@ const translations = {
     "datechange.result": "Conversación movida a",
     "datechange.messages": "mensajes",
     "datechange.invalidDate": "Fecha inválida",
-    "datechange.error": "No se pudieron cambiar las fechas. Inténtalo de nuevo."
+    "datechange.error": "No se pudieron cambiar las fechas. Inténtalo de nuevo.",
+    "datechange.delete": "Eliminar conversación",
+    "datechange.deleteConfirm": "¿Estás seguro de que quieres eliminar esta conversación? Esta acción no se puede deshacer.",
+    "datechange.deleting": "Eliminando...",
+    "datechange.deleteSuccess": "Conversación eliminada exitosamente",
+    "datechange.deleteError": "No se pudo eliminar la conversación. Inténtalo de nuevo.",
   },
 }
 

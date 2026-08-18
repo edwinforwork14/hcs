@@ -31,20 +31,20 @@ export function MessageBubble({ message, lastReadAt }: MessageBubbleProps) {
     <div
       className={cn(
         'flex flex-col',
-        isCustomer ? 'items-end' : 'items-start',
+        isCustomer ? 'items-start' : 'items-end',
       )}
     >
       <div
         className={cn(
           'max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm',
           isCustomer
-            ? 'rounded-br-sm bg-gradient-to-r from-[#D90429] to-[#FF4D6A] text-white'
-            : 'rounded-bl-sm bg-muted text-foreground',
+            ? 'rounded-bl-sm bg-muted text-foreground'
+            : 'rounded-br-sm bg-gradient-to-r from-[#D90429] to-[#FF4D6A] text-white',
         )}
       >
         {attachment && (
           <div className="mb-1.5">
-            <AttachmentCard attachment={attachment} tone="light" />
+            <AttachmentCard attachment={attachment} tone={isCustomer ? 'light' : 'dark'} />
           </div>
         )}
         {getMessageText(message) && (
