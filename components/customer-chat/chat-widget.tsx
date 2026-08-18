@@ -10,6 +10,9 @@ import { ChatButton } from './chat-button'
 import { ChatWindow } from './chat-window'
 
 export function ChatWidget() {
+  // Hidden temporarily for server deploy
+  return null
+
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const { online, ready } = useSupportOnline()
