@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Loader2, Mail, Lock, User, Phone, UserPlus, LogIn } from 'lucide-react'
+import { Loader2, Mail, Lock, User, Phone, UserPlus, LogIn, ArrowLeft } from 'lucide-react'
 
 import { useLanguage } from '@/context/language-context'
 import { useAuth } from '@/hooks/use-auth'
@@ -29,6 +30,7 @@ interface ChatStartFormProps {
 export function ChatStartForm({ onStart }: ChatStartFormProps) {
   const { t } = useLanguage()
   const { profile, login, register } = useAuth()
+  const router = useRouter()
   const [tab, setTab] = useState<'login' | 'register'>('login')
   const [submitting, setSubmitting] = useState(false)
   const [authCompleted, setAuthCompleted] = useState(false)
@@ -191,6 +193,16 @@ export function ChatStartForm({ onStart }: ChatStartFormProps) {
                 {loginForm.formState.errors.password.message}
               </p>
             )}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => router.push('/auth/forgot-password')}
+              className="text-xs text-primary hover:underline cursor-pointer"
+            >
+              {t('auth.login.forgotPassword')}
+            </button>
           </div>
 
           <Button

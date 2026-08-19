@@ -82,7 +82,88 @@ RESEND_API_KEY=re_your_api_key_here
 
 # Recipient Email for contact form submissions
 CONTACT_RECIPIENT_EMAIL=your-recipient-email@domain.com
+
+# Supabase (Auth + Database)
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...  # Server-only, never commit
 ```
+
+---
+
+## 🔐 Supabase Auth Configuration (Chat Widget Login/Register/Reset Password)
+
+The customer chat widget includes a full authentication flow (login, register, forgot password, reset password). Configure Supabase as follows:
+
+### 1. Authentication → Sign In / Providers → Email
+
+| Setting | Value |
+|---------|-------|
+| Enable email provider | ✅ **ON** |
+| Secure email change | ❌ **OFF** |
+| Secure password change | ❌ **OFF** |
+| Require current password when updating | ❌ **OFF** |
+| Prevent use of leaked passwords | ❌ **OFF** (Pro only) |
+| Minimum password length | `6` |
+| Password requirements | `No required characters` |
+| Email OTP expiration | `3600` |
+| Email OTP length | `8` |
+
+> Click **Save**
+
+### 2. Authentication → URL Configuration
+
+| Field | Value |
+|-------|-------|
+| Site URL | `http://localhost:3000` (dev) / `https://tu-dominio.com` (prod) |
+| Additional Redirect URLs | `http://localhost:3000/auth/reset-password`<br>`http://localhost:3000/**` |
+
+> Click **Save**
+
+### 3. Authentication → Emails (SMTP Settings)
+
+| Setting | Value |
+|---------|-------|
+| Use custom SMTP | ❌ **OFF** (uses Supabase free SMTP — ~3 emails/hour limit) |
+
+> For production: enable **Use custom SMTP = ON** and configure SendGrid/Resend/Postmark.
+
+### 4. Authentication → Configuration (if visible)
+
+| Setting | Value |
+|---------|-------|
+| Enable email confirmations | ❌ **OFF** |
+
+---
+
+### Auth Flow Reference
+
+**Files involved:**
+- `hooks/use-auth.ts` — `login`, `register`, `forgotPassword`, `resetPassword`, `logout`
+- `lib/supabase/client.ts` — Browser client (`createBrowserClient`)
+- `lib/supabase/server.ts` — Server client (`@supabase/ssr` with cookies)
+- `app/auth/forgot-password/page.tsx` — Request reset email
+- `app/auth/reset-password/page.tsx` — Set new password (verifies token via `getUser()`)
+- `components/customer-chat/chat-start-form.tsx` — Login/Register tabs in chat widget
+- `lib/validations/auth.ts` — Zod schemas
+
+**Test locally:**
+```bash
+npm run dev
+# 1. http://localhost:3000 → Open chat → "¿Olvidaste tu contraseña?"
+# 2. Enter email → Submit → Check spam
+# 3. Click link → http://localhost:3000/auth/reset-password
+# 4. Set new password → Login → ✅
+```
+
+### Production Deploy Checklist
+
+- [ ] Site URL = `https://tu-dominio.com`
+- [ ] Redirect URLs = `https://tu-dominio.com/auth/reset-password`, `https://tu-dominio.com/**`
+- [ ] **Emails → Use custom SMTP = ON** (configure SendGrid/Resend/Postmark)
+- [ ] Add env vars to Vercel: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- [ ] Verify domain in SMTP provider
+- [ ] Auth → Rate Limits → adjust if needed
 
 ---
 

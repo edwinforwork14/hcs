@@ -39,3 +39,28 @@ export const LoginSchema = z.object({
 })
 
 export type LoginInput = z.infer<typeof LoginSchema>
+
+/** Recuperación de contraseña (solicitar email de reset) */
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email({ message: 'Enter a valid email address' })
+    .max(200, { message: 'Email is too long' }),
+})
+
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>
+
+/** Restablecer contraseña (con token) */
+export const ResetPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(6, { message: 'Password must be at least 6 characters' })
+    .max(200, { message: 'Password is too long' }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+})
+
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>

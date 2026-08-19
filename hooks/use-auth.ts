@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import type { User } from '@supabase/supabase-js'
 
 import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase/client'
-import type { RegisterInput, LoginInput } from '@/lib/validations/auth'
+import type { RegisterInput, LoginInput, ForgotPasswordInput, ResetPasswordInput } from '@/lib/validations/auth'
 
 export interface UserProfile {
   id: string
@@ -136,5 +136,23 @@ export function useAuth() {
     }
   }, [])
 
-  return { user, profile, loading, register, login, logout }
+  /** Solicitar email de recuperación de contraseña */
+  const forgotPassword = useCallback(async (input: ForgotPasswordInput) => {
+    const supabase = getSupabaseClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(input.email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    })
+    if (error) throw error
+  }, [])
+
+  /** Restablecer contraseña con token (llamado desde la página de reset) */
+  const resetPassword = useCallback(async (input: ResetPasswordInput) => {
+    const supabase = getSupabaseClient()
+    const { error } = await supabase.auth.updateUser({
+      password: input.password,
+    })
+    if (error) throw error
+  }, [])
+
+  return { user, profile, loading, register, login, logout, forgotPassword, resetPassword }
 }
