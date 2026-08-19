@@ -67,6 +67,27 @@ function getCustomerLocation(): string | null {
   }
 }
 
+
+/**
+ * Look up an existing OPEN conversation for the given email.
+ * Returns the conversation if found, null otherwise.
+ */
+async function findOpenConversation(
+  email: string,
+): Promise<Conversation | null> {
+  if (!isSupabaseConfigured) return null
+  const supabase = getAnonClient()
+  const { data } = await supabase
+    .from('conversations')
+    .select('*')
+    .eq('customer_email', email)
+    .eq('status', 'open')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  return data ?? null
+}
+
 export function useChat() {
   const [session, setSession] = useState<ChatSession | null>(() => loadSession())
   const [conversation, setConversation] = useState<Conversation | null>(null)
@@ -222,9 +243,34 @@ export function useChat() {
     async (input: StartConversationInput, language?: string) => {
       if (!isSupabaseConfigured) throw new Error('Chat is not configured')
 
-      // The server creates the conversation and inserts the automatic
-      // welcome message from the administration (anon clients cannot write
-      // messages as `admin` due to RLS).
+      // GUARD: Before creating a new conversation, check if an open one
+      // already exists for this email. If so, reuse it.
+      const existing = await findOpenConversation(input.customerEmail)
+      if (existing) {
+        const nextSession: ChatSession = {
+          conversationId: existing.id,
+          customerName: existing.customer_name,
+          customerEmail: existing.customer_email,
+          customerPhone: existing.customer_phone ?? undefined,
+        }
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession))
+        setSession(nextSession)
+        setConversation(existing)
+
+        // Load existing messages for this conversation
+        const supabase = getAnonClient()
+        const { data: existingMessages } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('conversation_id', existing.id)
+          .order('created_at', { ascending: true })
+        if (existingMessages) {
+          setMessages(existingMessages)
+        }
+        return
+      }
+
+      // No existing open conversation — create a new one via the server.
       const payload: StartChatPayload = {
         customerName: input.customerName,
         customerEmail: input.customerEmail,
@@ -256,7 +302,6 @@ export function useChat() {
     },
     [],
   )
-
   const sendMessage = useCallback(
     async (content: string) => {
       const parsed = MessageSchema.safeParse({ content })

@@ -20,16 +20,19 @@ interface ChatWindowProps {
 export function ChatWindow({ onClose, online, presenceReady }: ChatWindowProps) {
   const { language, t } = useLanguage()
   const chat = useChat()
-  const { profile, logout } = useAuth()
+  const { profile, logout, loading: authLoading } = useAuth()
   const [startError, setStartError] = useState<string | null>(null)
 
   // Clear stale chat session from localStorage when user is not logged in.
   // This prevents being stuck in an old conversation without auth.
+  // Only run after auth has fully initialized (authLoading === false) to avoid
+  // clearing a valid session during the initial mount race condition.
   useEffect(() => {
+    if (authLoading) return
     if (!profile && chat.session) {
       chat.resetConversation()
     }
-  }, [profile, chat.session, chat])
+  }, [profile, chat.session, chat, authLoading])
 
   const handleStart = useCallback(
     async (input: {

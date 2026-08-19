@@ -50,6 +50,24 @@ export async function POST(request: Request) {
       language,
     } = parsed.data
 
+    // 0. Check for an existing open conversation for this email.
+    //    If one already exists, return it instead of creating a duplicate.
+    const { data: existingConversation } = await service
+      .from('conversations')
+      .select('*')
+      .eq('customer_email', customerEmail)
+      .eq('status', 'open')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (existingConversation) {
+      return NextResponse.json({
+        success: true,
+        data: { conversation: existingConversation, welcomeMessage: null },
+      })
+    }
+
     // 1. Create the conversation.
     const { data: conversation, error: conversationError } = await service
       .from('conversations')
