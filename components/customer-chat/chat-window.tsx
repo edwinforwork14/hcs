@@ -1,7 +1,9 @@
 'use client'
 
+import { useCallback, useEffect, useState } from 'react'
 import { useLanguage } from '@/context/language-context'
 import { useChat } from '@/hooks/use-chat'
+import { useAuth } from '@/hooks/use-auth'
 import { Spinner } from '@/components/ui/spinner'
 
 import { ChatHeader } from './chat-header'
@@ -18,6 +20,34 @@ interface ChatWindowProps {
 export function ChatWindow({ onClose, online, presenceReady }: ChatWindowProps) {
   const { language, t } = useLanguage()
   const chat = useChat()
+  const { profile, logout } = useAuth()
+  const [startError, setStartError] = useState<string | null>(null)
+
+  // Clear stale chat session from localStorage when user is not logged in.
+  // This prevents being stuck in an old conversation without auth.
+  useEffect(() => {
+    if (!profile && chat.session) {
+      chat.resetConversation()
+    }
+  }, [profile, chat.session, chat])
+
+  const handleStart = useCallback(
+    async (input: {
+      customerName: string
+      customerEmail: string
+      customerPhone?: string
+    }) => {
+      setStartError(null)
+      try {
+        await chat.startConversation(input, language)
+      } catch (err) {
+        setStartError(
+          err instanceof Error ? err.message : 'Could not start the conversation',
+        )
+      }
+    },
+    [chat, language],
+  )
 
   return (
     <div className="fixed bottom-24 right-6 z-50 flex h-[520px] max-h-[calc(100vh-8rem)] w-[380px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-200">
@@ -27,12 +57,32 @@ export function ChatWindow({ onClose, online, presenceReady }: ChatWindowProps) 
         isClosed={chat.isClosed}
         onClose={onClose}
         onReset={chat.resetConversation}
+        onLogout={
+          profile
+            ? () => {
+                chat.resetConversation()
+                logout()
+                onClose()
+              }
+            : undefined
+        }
       />
 
-      {!chat.session ? (
-        <ChatStartForm
-          onStart={(input) => chat.startConversation(input, language)}
-        />
+      {startError ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 p-4 text-center">
+          <p className="text-sm text-destructive">{startError}</p>
+          <button
+            onClick={() => {
+              setStartError(null)
+              chat.resetConversation()
+            }}
+            className="text-sm text-primary underline"
+          >
+            Try again
+          </button>
+        </div>
+      ) : !chat.session ? (
+        <ChatStartForm onStart={handleStart} />
       ) : chat.loadingHistory ? (
         <div className="flex flex-1 items-center justify-center">
           <Spinner />
