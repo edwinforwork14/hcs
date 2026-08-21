@@ -3,14 +3,7 @@ import { Inter, Sora } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/language-context'
 import { Toaster } from '@/components/ui/sonner'
-import dynamic from 'next/dynamic'
-
-// SSR disabled: avoids the Windows casing bug that breaks React hydration
-// when next/navigation is loaded by the layout router.
-const ChatWidget = dynamic(
-  () => import('@/components/customer-chat/chat-widget').then((m) => m.ChatWidget),
-  { ssr: false },
-)
+import { ClientChatWidget } from '@/components/customer-chat/client-chat-widget'
 import './globals.css'
 
 const inter = Inter({ 
@@ -40,7 +33,7 @@ export default function RootLayout({
         <LanguageProvider>
           {children}
           <Toaster position="top-right" />
-          <ChatWidget />
+          <ClientChatWidget />
         </LanguageProvider>
         {process.env.NODE_ENV === 'production' &&
           process.env.VERCEL === '1' && <Analytics />}
