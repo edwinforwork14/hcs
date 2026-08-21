@@ -1,5 +1,9 @@
 import { createSupabaseServerClient, createSupabaseServiceRoleClient } from '../adapters/supabase/server'
-import type { AdminAuthResult } from '../components/agent/auth-screens'
+export type AdminAuthResult =
+  | { status: 'not-configured' }
+  | { status: 'not-authenticated' }
+  | { status: 'not-admin'; email: string }
+  | { status: 'ok'; email: string }
 
 export async function getAdminAuth(): Promise<AdminAuthResult> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -34,4 +38,3 @@ export async function getAdminAuth(): Promise<AdminAuthResult> {
     return { status: 'not-authenticated' }
   }
 }
-export type { AdminAuthResult }
