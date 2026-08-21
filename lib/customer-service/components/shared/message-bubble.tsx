@@ -1,0 +1,69 @@
+'use client'
+
+import { cn } from '@/lib/utils'
+import { formatMessageTime } from '@/lib/time'
+import { getMessageAttachment, getMessageText, type Message } from '../../core/domain'
+import { AttachmentCard } from '@/components/chat/attachment-card'
+import { ReadIcon } from '@/components/chat/read-icon'
+
+interface MessageBubbleProps {
+  message: Message
+  lastReadAt?: string | null
+  mode?: 'customer' | 'agent'
+}
+
+export function MessageBubble({ message, lastReadAt = null, mode = 'customer' }: MessageBubbleProps) {
+  const isSelf = mode === 'customer'
+    ? message.sender_type === 'customer'
+    : message.sender_type === 'admin'
+
+  const attachment = getMessageAttachment(message)
+
+  const isRead =
+    mode === 'agent' &&
+    message.sender_type === 'customer' &&
+    !!lastReadAt &&
+    new Date(message.created_at).getTime() <= new Date(lastReadAt).getTime()
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col',
+        isSelf ? 'items-end' : 'items-start',
+      )}
+    >
+      <div
+        style={
+          isSelf
+            ? {
+                background: 'linear-gradient(to right, var(--cs-primary, #D90429), var(--cs-secondary, #FF4D6A))',
+              }
+            : undefined
+        }
+        className={cn(
+          'max-w-[80%] rounded-2xl px-3 py-2 text-sm shadow-sm border-0',
+          isSelf
+            ? 'rounded-br-sm text-white'
+            : 'rounded-bl-sm bg-muted text-foreground',
+        )}
+      >
+        {attachment && (
+          <div className="mb-1.5">
+            <AttachmentCard attachment={attachment} tone={isSelf ? 'dark' : 'light'} />
+          </div>
+        )}
+        {getMessageText(message) && (
+          <p className="whitespace-pre-wrap break-words">
+            {getMessageText(message)}
+          </p>
+        )}
+      </div>
+      <span className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+        {formatMessageTime(message.created_at)}
+        {mode === 'agent' && message.sender_type === 'customer' && (
+          <ReadIcon read={isRead} size={13} />
+        )}
+      </span>
+    </div>
+  )
+}

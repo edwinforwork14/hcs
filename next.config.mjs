@@ -18,8 +18,9 @@ const nextConfig = {
   outputFileTracingRoot: __dirname,
   // Production builds run with Turbopack (Next 16 default on Vercel). The
   // `webpack` config below is dev-only (watcher ignores), so declare an
-  // empty turbopack config to satisfy the build.
-  turbopack: {},
+  turbopack: {
+    root: __dirname,
+  },
   typescript: {
     // strict types enabled
   },

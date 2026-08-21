@@ -1,11 +1,11 @@
-import { DateChanger } from '@/components/admin-chat/date-changer'
 import {
+  DateChanger,
   AdminAuthScreen,
-  ConfigNotice,
-} from '@/components/admin-chat/auth-screens'
-import { getAdminAuth } from '@/lib/admin-auth'
-import { createServiceRoleClient } from '@/lib/supabase/server'
-import type { Conversation } from '@/types/chat'
+  getAdminAuth,
+  type Conversation,
+} from '@/lib/customer-service'
+import { ConfigNotice } from '@/lib/customer-service/components/agent/auth-screens'
+import { createSupabaseServiceRoleClient } from '@/lib/customer-service/adapters/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,8 +13,12 @@ export default async function AdminDateChangePage() {
   const auth = await getAdminAuth()
   if (auth.status !== 'ok') return <AdminAuthScreen auth={auth} />
 
-  const service = createServiceRoleClient()
-  if (!service) return <ConfigNotice />
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !serviceRoleKey) return <ConfigNotice />
+
+  const service = createSupabaseServiceRoleClient(url, serviceRoleKey)
 
   const { data: conversations } = await service
     .from('conversations')

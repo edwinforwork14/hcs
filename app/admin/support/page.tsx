@@ -1,13 +1,14 @@
-import { AdminSupport } from '@/components/admin-chat/admin-support'
-import { AdminAuthScreen, ConfigNotice } from '@/components/admin-chat/auth-screens'
-import { getAdminAuth } from '@/lib/admin-auth'
-import { createServiceRoleClient } from '@/lib/supabase/server'
 import {
+  AgentDashboard,
+  AdminAuthScreen,
+  getAdminAuth,
   getMessageAttachment,
   getMessageText,
-  type ConversationWithMeta,
+  type Conversation,
   type Message,
-} from '@/types/chat'
+} from '@/lib/customer-service'
+import { ConfigNotice } from '@/lib/customer-service/components/agent/auth-screens'
+import { createSupabaseServiceRoleClient } from '@/lib/customer-service/adapters/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,8 +16,12 @@ export default async function AdminSupportPage() {
   const auth = await getAdminAuth()
   if (auth.status !== 'ok') return <AdminAuthScreen auth={auth} />
 
-  const service = createServiceRoleClient()
-  if (!service) return <ConfigNotice />
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !serviceRoleKey) return <ConfigNotice />
+
+  const service = createSupabaseServiceRoleClient(url, serviceRoleKey)
 
   const [conversationsRes, messagesRes] = await Promise.all([
     service
@@ -29,9 +34,6 @@ export default async function AdminSupportPage() {
       .order('created_at', { ascending: true }),
   ])
 
-  // Enrich conversations server-side so unread badges, last-message previews
-  // and timestamps are part of the initial HTML (visible even before or
-  // without client-side JavaScript, e.g. with a stale cached bundle).
   const allMessages = (messagesRes.data ?? []) as Message[]
   const byConversation = new Map<string, Message[]>()
   for (const message of allMessages) {
@@ -40,7 +42,7 @@ export default async function AdminSupportPage() {
     byConversation.set(message.conversation_id, list)
   }
 
-  const enriched: ConversationWithMeta[] = (conversationsRes.data ?? []).map(
+  const enriched: Conversation[] = (conversationsRes.data ?? []).map(
     (conversation) => {
       const conversationMessages =
         byConversation.get(conversation.id) ?? []
@@ -48,7 +50,7 @@ export default async function AdminSupportPage() {
       const lastAttachment = last ? getMessageAttachment(last) : null
       const lastMessage = last
         ? getMessageText(last) ||
-          (lastAttachment ? `\u{1F4CE} ${lastAttachment.name}` : null)
+          (lastAttachment ? `📎 ${lastAttachment.name}` : null)
         : null
       const lastReadAt =
         conversation.admin_last_read_at ?? conversation.created_at
@@ -69,7 +71,7 @@ export default async function AdminSupportPage() {
   )
 
   return (
-    <AdminSupport
+    <AgentDashboard
       initialConversations={enriched}
       initialMessages={allMessages}
       adminEmail={auth.email}
