@@ -89,3 +89,11 @@ html {
 .font-heading {
   font-family: var(--font-heading);
 }
+
+/* Hide chat widget on admin pages (avoid usePathname import that breaks
+   layout router on Windows + Next 16 casing bug) */
+body:has(.admin-layout) [aria-label="Open chat"],
+body:has(.admin-layout) [aria-label="Close chat"],
+body:has(.admin-layout) .fixed.bottom-6.right-6 {
+  display: none !important;
+}

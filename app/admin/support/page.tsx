@@ -69,10 +69,12 @@ export default async function AdminSupportPage() {
   )
 
   return (
-    <AdminSupport
-      initialConversations={enriched}
-      initialMessages={allMessages}
-      adminEmail={auth.email}
-    />
+    <div className="admin-layout">
+      <AdminSupport
+        initialConversations={enriched}
+        initialMessages={allMessages}
+        adminEmail={auth.email}
+      />
+    </div>
   )
 }
