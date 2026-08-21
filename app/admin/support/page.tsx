@@ -1,13 +1,13 @@
+import { AdminSupport } from '@/components/admin-chat/admin-support'
+import { AdminAuthScreen, ConfigNotice } from '@/components/admin-chat/auth-screens'
+import { getAdminAuth } from '@/lib/admin-auth'
+import { createServiceRoleClient } from '@/lib/supabase/server'
 import {
-  AgentDashboard,
-  AdminAuthScreen,
-  getAdminAuth,
   getMessageAttachment,
   getMessageText,
-} from '@/lib/customer-service'
-import { ConfigNotice } from '@/lib/customer-service/components/agent/auth-screens'
-import { createServiceRoleClient } from '@/lib/supabase/server'
-import type { Conversation, Message } from '@/types/chat'
+  type ConversationWithMeta,
+  type Message,
+} from '@/types/chat'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,7 +40,7 @@ export default async function AdminSupportPage() {
     byConversation.set(message.conversation_id, list)
   }
 
-  const enriched: Conversation[] = (conversationsRes.data ?? []).map(
+  const enriched: ConversationWithMeta[] = (conversationsRes.data ?? []).map(
     (conversation) => {
       const conversationMessages =
         byConversation.get(conversation.id) ?? []
@@ -69,7 +69,7 @@ export default async function AdminSupportPage() {
   )
 
   return (
-    <AgentDashboard
+    <AdminSupport
       initialConversations={enriched}
       initialMessages={allMessages}
       adminEmail={auth.email}
