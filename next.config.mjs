@@ -1,7 +1,31 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+// On Windows, fileURLToPath / process.cwd() may return lowercase 'desktop'
+// while the actual filesystem has 'Desktop' (capital D). This causes webpack
+// to see two different module identifiers for the same file, producing
+// warnings and chunk-load errors. Fix by reading the parent directory and
+// replacing any segment with its real-case equivalent.
+function realPath(p) {
+  // Walk up until we find an existing ancestor, then rebuild downward with
+  // the real casing for each segment.
+  const parts = p.split(/[\/\\]/).filter(Boolean)
+  // Start from the root (e.g. C:\) or / on Unix
+  let built = parts[0].includes(':') ? parts[0] + '/' : '/'
+  for (let i = 1; i < parts.length; i++) {
+    try {
+      const entries = fs.readdirSync(built)
+      const real = entries.find(e => e.toLowerCase() === parts[i].toLowerCase())
+      built = path.posix.join(built, real || parts[i])
+    } catch {
+      built = path.posix.join(built, parts[i])
+    }
+  }
+  return built
+}
+
+const __dirname = realPath(path.dirname(fileURLToPath(import.meta.url)))
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
