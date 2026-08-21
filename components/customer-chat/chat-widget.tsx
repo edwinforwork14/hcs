@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { usePathname } from 'next/navigation'
 
 import { isSupabaseConfigured } from '@/lib/supabase/client'
 import { useSupportOnline } from '@/hooks/use-support-presence'
@@ -9,14 +8,14 @@ import { useSupportOnline } from '@/hooks/use-support-presence'
 import { ChatButton } from './chat-button'
 import { ChatWindow } from './chat-window'
 
+// Admin pages hide the widget via CSS (data-hide-chat attribute on body).
+// This avoids importing next/navigation (usePathname), which triggers a
+// layout-router casing bug on Windows + Next 16.
 export function ChatWidget() {
-  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const { online, ready } = useSupportOnline()
 
-  // Not configured yet, or we are on an admin route.
   if (!isSupabaseConfigured) return null
-  if (pathname?.startsWith('/admin')) return null
 
   return (
     <>

@@ -70,3 +70,32 @@ export function getAnonClient() {
   }
   return g[GLOBAL_ANON_KEY]
 }
+
+/**
+ * Returns a browser client for customer authentication.
+ * Uses a distinct storage key to avoid conflicts with admin sessions.
+ */
+const GLOBAL_CUSTOMER_AUTH_KEY = '__hcs_supabase_customer_auth_client__'
+
+type CustomerAuthClient = ReturnType<typeof createAnonClient<Database>>
+
+export function getCustomerAuthClient() {
+  if (!isSupabaseConfigured) {
+    throw new Error(
+      'Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.',
+    )
+  }
+  const g = globalThis as typeof globalThis & {
+    [GLOBAL_CUSTOMER_AUTH_KEY]?: CustomerAuthClient
+  }
+  if (!g[GLOBAL_CUSTOMER_AUTH_KEY]) {
+    g[GLOBAL_CUSTOMER_AUTH_KEY] = createAnonClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        storageKey: 'sb-customer-auth',
+      },
+    })
+  }
+  return g[GLOBAL_CUSTOMER_AUTH_KEY]
+}

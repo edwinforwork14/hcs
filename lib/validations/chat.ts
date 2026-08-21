@@ -44,6 +44,39 @@ export const AdminLoginSchema = z.object({
 
 export type AdminLoginInput = z.infer<typeof AdminLoginSchema>
 
+/** Customer sign-in (existing account). */
+export const CustomerLoginSchema = z.object({
+  email: z.string().trim().email({ message: 'Enter a valid email address' }),
+  password: z
+    .string()
+    .min(6, { message: 'Password must be at least 6 characters' })
+    .max(200),
+})
+
+export type CustomerLoginInput = z.infer<typeof CustomerLoginSchema>
+
+/** Customer sign-up (new account). */
+export const CustomerSignUpSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, { message: 'Name is required' })
+    .max(100, { message: 'Name is too long' }),
+  email: z.string().trim().email({ message: 'Enter a valid email address' }),
+  phone: z
+    .string()
+    .trim()
+    .max(40, { message: 'Phone is too long' })
+    .optional()
+    .or(z.literal('')),
+  password: z
+    .string()
+    .min(6, { message: 'Password must be at least 6 characters' })
+    .max(200),
+})
+
+export type CustomerSignUpInput = z.infer<typeof CustomerSignUpSchema>
+
 /** Attachment metadata attached to a message. */
 export const AttachmentSchema = z.object({
   name: z.string().trim().min(1).max(255),

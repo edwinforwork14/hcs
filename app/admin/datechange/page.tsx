@@ -22,6 +22,8 @@ export default async function AdminDateChangePage() {
     .order('updated_at', { ascending: false })
 
   return (
-    <DateChanger initialConversations={(conversations ?? []) as Conversation[]} />
+    <div className="admin-layout">
+      <DateChanger initialConversations={(conversations ?? []) as Conversation[]} />
+    </div>
   )
 }

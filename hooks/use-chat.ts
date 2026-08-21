@@ -9,6 +9,7 @@ import {
 } from '@/lib/attachments'
 import {
   getAnonClient,
+  getSupabaseClient,
   isSupabaseConfigured,
 } from '@/lib/supabase/client'
 import { MessageSchema, type StartConversationInput } from '@/lib/validations/chat'
@@ -24,6 +25,7 @@ import type {
   UploadResult,
 } from '@/types/chat'
 
+import { useAuth } from './use-auth'
 import { useRealtime } from './use-realtime'
 
 const STORAGE_KEY = 'hcs-chat-session'
@@ -65,12 +67,35 @@ function getCustomerLocation(): string | null {
   }
 }
 
+
+/**
+ * Look up an existing OPEN conversation for the given email.
+ * Returns the conversation if found, null otherwise.
+ */
+async function findOpenConversation(
+  email: string,
+): Promise<Conversation | null> {
+  if (!isSupabaseConfigured) return null
+  const supabase = getAnonClient()
+  const { data } = await supabase
+    .from('conversations')
+    .select('*')
+    .eq('customer_email', email)
+    .eq('status', 'open')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  return data ?? null
+}
+
 export function useChat() {
   const [session, setSession] = useState<ChatSession | null>(() => loadSession())
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [sending, setSending] = useState(false)
+
+  const { profile, user } = useAuth()
 
   const conversationId = session?.conversationId
 
@@ -121,6 +146,71 @@ export function useChat() {
     }
   }, [conversationId])
 
+  // When user logs in and there's no active session, find their existing conversations.
+  useEffect(() => {
+    if (
+      !isSupabaseConfigured ||
+      !profile?.email ||
+      session ||
+      loadingHistory
+    ) return
+
+    let cancelled = false
+    setLoadingHistory(true)
+
+    const supabase = getAnonClient()
+
+    // Find the most recent conversation for this email
+    const restoreConversation = async () => {
+      try {
+        const { data: conv, error } = await supabase
+          .from('conversations')
+          .select('*')
+          .eq('customer_email', profile.email)
+          .order('updated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        if (cancelled) return
+        if (error || !conv) {
+          return
+        }
+
+        // Load messages for this conversation
+        const msgRes = await supabase
+          .from('messages')
+          .select('*')
+          .eq('conversation_id', conv.id)
+          .order('created_at', { ascending: true })
+
+        if (cancelled) return
+        const messages = msgRes.data ?? []
+
+        // Restore session
+        const nextSession: ChatSession = {
+          conversationId: conv.id,
+          customerName: conv.customer_name,
+          customerEmail: conv.customer_email,
+          customerPhone: conv.customer_phone ?? undefined,
+        }
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession))
+        setSession(nextSession)
+        setConversation(conv)
+        setMessages(messages)
+      } catch {
+        // Silently fail - user can start a new conversation
+      } finally {
+        if (!cancelled) setLoadingHistory(false)
+      }
+    }
+
+    restoreConversation()
+
+    return () => {
+      cancelled = true
+    }
+  }, [profile?.email, session, loadingHistory])
+
   // Realtime: new messages for this conversation.
   const messagePayload = useRealtime(
     'messages',
@@ -153,9 +243,34 @@ export function useChat() {
     async (input: StartConversationInput, language?: string) => {
       if (!isSupabaseConfigured) throw new Error('Chat is not configured')
 
-      // The server creates the conversation and inserts the automatic
-      // welcome message from the administration (anon clients cannot write
-      // messages as `admin` due to RLS).
+      // GUARD: Before creating a new conversation, check if an open one
+      // already exists for this email. If so, reuse it.
+      const existing = await findOpenConversation(input.customerEmail)
+      if (existing) {
+        const nextSession: ChatSession = {
+          conversationId: existing.id,
+          customerName: existing.customer_name,
+          customerEmail: existing.customer_email,
+          customerPhone: existing.customer_phone ?? undefined,
+        }
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession))
+        setSession(nextSession)
+        setConversation(existing)
+
+        // Load existing messages for this conversation
+        const supabase = getAnonClient()
+        const { data: existingMessages } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('conversation_id', existing.id)
+          .order('created_at', { ascending: true })
+        if (existingMessages) {
+          setMessages(existingMessages)
+        }
+        return
+      }
+
+      // No existing open conversation — create a new one via the server.
       const payload: StartChatPayload = {
         customerName: input.customerName,
         customerEmail: input.customerEmail,
@@ -187,7 +302,6 @@ export function useChat() {
     },
     [],
   )
-
   const sendMessage = useCallback(
     async (content: string) => {
       const parsed = MessageSchema.safeParse({ content })

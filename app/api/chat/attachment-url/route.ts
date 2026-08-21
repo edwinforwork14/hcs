@@ -11,10 +11,7 @@ export async function POST(request: Request) {
   try {
     const service = createServiceRoleClient()
     if (!service) {
-      return NextResponse.json(
-        { error: 'Chat service not configured' },
-        { status: 500 },
-      )
+      return NextResponse.json({ error: 'Chat service not configured' }, { status: 500 })
     }
 
     const body = await request.json().catch(() => null)
@@ -30,21 +27,16 @@ export async function POST(request: Request) {
 
     const { data, error } = await service.storage
       .from('chat-attachments')
-      .createSignedUrl(path, 3600)
-    if (error || !data) {
-      console.error('Attachment URL error:', error)
-      return NextResponse.json(
-        { error: 'Could not generate link' },
-        { status: 500 },
-      )
+      .createSignedUrl(path, 60 * 60) // 1 hour
+
+    if (error || !data?.signedUrl) {
+      console.error('Attachment URL API error:', error)
+      return NextResponse.json({ error: 'Could not generate link' }, { status: 500 })
     }
 
     return NextResponse.json({ url: data.signedUrl })
   } catch (error) {
-    console.error('Attachment URL error:', error)
-    return NextResponse.json(
-      { error: 'Could not generate link' },
-      { status: 500 },
-    )
+    console.error('Attachment URL API error:', error)
+    return NextResponse.json({ error: 'Could not generate link' }, { status: 500 })
   }
 }

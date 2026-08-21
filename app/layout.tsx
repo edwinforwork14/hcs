@@ -3,7 +3,7 @@ import { Inter, Sora } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/language-context'
 import { Toaster } from '@/components/ui/sonner'
-import { ChatWidget } from '@/components/customer-chat/chat-widget'
+import { ClientChatWidget } from '@/components/customer-chat/client-chat-widget'
 import './globals.css'
 
 const inter = Inter({ 
@@ -33,7 +33,7 @@ export default function RootLayout({
         <LanguageProvider>
           {children}
           <Toaster position="top-right" />
-          <ChatWidget />
+          <ClientChatWidget />
         </LanguageProvider>
         {process.env.NODE_ENV === 'production' &&
           process.env.VERCEL === '1' && <Analytics />}
