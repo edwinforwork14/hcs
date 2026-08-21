@@ -2,7 +2,7 @@
 
 import { Globe, LogOut, MessageCircle, RotateCcw, X } from 'lucide-react'
 
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 import { Button } from '@/components/ui/button'
 
 interface ChatHeaderProps {
@@ -11,7 +11,7 @@ interface ChatHeaderProps {
   isClosed: boolean
   onClose: () => void
   onReset: () => void
-  onLogout?: () => void
+  onSignOut?: () => void
 }
 
 export function ChatHeader({
@@ -20,9 +20,9 @@ export function ChatHeader({
   isClosed,
   onClose,
   onReset,
-  onLogout,
+  onSignOut,
 }: ChatHeaderProps) {
-  const { language, setLanguage, t } = useCustomerService()
+  const { language, setLanguage, t } = useLanguage()
 
   return (
     <div
@@ -80,12 +80,12 @@ export function ChatHeader({
         >
           <Globe className="size-4" />
         </Button>
-        {onLogout && (
+        {onSignOut && (
           <Button
             type="button"
             variant="ghost"
             size="icon-sm"
-            onClick={onLogout}
+            onClick={onSignOut}
             aria-label={t('auth.user.logout')}
             title={t('auth.user.logout')}
             className="cursor-pointer text-white hover:bg-white/20 hover:text-white"

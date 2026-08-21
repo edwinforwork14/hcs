@@ -1,349 +1,314 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
+import { useState } from 'react'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { Loader2, Mail, Lock, User, Phone, UserPlus, LogIn } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
-import { useCustomerService } from '../../context'
-import { useAuth } from '../../hooks'
+import { useLanguage } from '@/context/language-context'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import {
-  RegisterSchema,
-  type RegisterInput,
-  LoginSchema,
-  type LoginInput,
-} from '@/lib/validations/auth'
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
+import {
+  CustomerLoginSchema,
+  CustomerSignUpSchema,
+} from '@/lib/validations/chat'
 
-interface ChatAuthProps {
-  onStart: (input: {
-    customerName: string
-    customerEmail: string
-    customerPhone?: string
-  }) => Promise<void>
+type AuthMode = 'signin' | 'signup'
+
+interface AuthFormValues {
+  name: string
+  email: string
+  phone: string
+  password: string
 }
 
-export function ChatAuth({ onStart }: ChatAuthProps) {
-  const { config, t } = useCustomerService()
-  const { profile, login, register } = useAuth()
-  const router = useRouter()
-  const [tab, setTab] = useState<'login' | 'register'>('login')
+interface ChatAuthProps {
+  signIn: (email: string, password: string) => Promise<void>
+  signUp: (
+    name: string,
+    email: string,
+    phone: string,
+    password: string,
+  ) => Promise<boolean>
+  resendConfirmation: (email: string) => Promise<void>
+}
+
+/** Returns the GoTrue error code (if any) from a thrown auth error. */
+function getAuthErrorCode(error: unknown): string | null {
+  const code = (error as { code?: string } | null)?.code
+  return typeof code === 'string' && code ? code : null
+}
+
+export function ChatAuth({
+  signIn,
+  signUp,
+  resendConfirmation,
+}: ChatAuthProps) {
+  const { t } = useLanguage()
+  const [mode, setMode] = useState<AuthMode>('signin')
   const [submitting, setSubmitting] = useState(false)
-  const [authCompleted, setAuthCompleted] = useState(false)
-  const startCalledRef = useRef(false)
+  const [confirmation, setConfirmation] = useState(false)
+  const [resending, setResending] = useState(false)
 
-  const loginForm = useForm<LoginInput>({
-    resolver: zodResolver(LoginSchema),
-    defaultValues: { email: '', password: '' },
+  const authSchema = mode === 'signin' ? CustomerLoginSchema : CustomerSignUpSchema
+
+  const form = useForm<AuthFormValues>({
+    resolver: zodResolver(authSchema) as Resolver<AuthFormValues>,
+    defaultValues: { name: '', email: '', phone: '', password: '' },
   })
 
-  const registerForm = useForm<RegisterInput>({
-    resolver: zodResolver(RegisterSchema),
-    defaultValues: { fullName: '', email: '', phone: '', password: '' },
-  })
-
-  useEffect(() => {
-    if (profile && authCompleted && !startCalledRef.current) {
-      startCalledRef.current = true
-      onStart({
-        customerName: profile.full_name,
-        customerEmail: profile.email,
-        customerPhone: profile.phone ?? '',
-      }).catch(() => {
-        startCalledRef.current = false
-      })
-    }
-  }, [profile, authCompleted, onStart])
-
-  useEffect(() => {
-    if (profile && !authCompleted) {
-      setAuthCompleted(true)
-    }
-  }, [profile, authCompleted])
-
-  if (profile) {
-    return (
-      <div className="flex flex-1 items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      </div>
-    )
+  const switchMode = (next: AuthMode) => {
+    if (next === mode) return
+    setMode(next)
+    setConfirmation(false)
+    form.clearErrors()
   }
 
-  const handleLogin = async (values: LoginInput) => {
+  const handleSubmit = async (values: AuthFormValues) => {
     setSubmitting(true)
     try {
-      await login(values)
-      setAuthCompleted(true)
-      toast.success(t('auth.login.success'))
+      if (mode === 'signin') {
+        await signIn(values.email, values.password)
+        // Success: the auth hook flips to "authenticated" and the widget
+        // swaps this form for the conversation form.
+      } else {
+        const sessionCreated = await signUp(
+          values.name,
+          values.email,
+          values.phone,
+          values.password,
+        )
+        if (!sessionCreated) setConfirmation(true)
+      }
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t('auth.login.error'),
-      )
+      const code = getAuthErrorCode(error)
+      if (code === 'user_already_exists') {
+        toast.error(t('chat.auth.accountExists'))
+        switchMode('signin')
+      } else if (code === 'email_not_confirmed') {
+        setConfirmation(true)
+      } else if (code === 'signup_disabled') {
+        toast.error(t('chat.auth.signupDisabled'))
+      } else if (
+        code === 'over_email_send_rate_limit' ||
+        code === 'over_request_rate_limit'
+      ) {
+        toast.error(t('chat.auth.rateLimit'))
+      } else if (code === 'invalid_credentials') {
+        toast.error(t('chat.auth.invalidCredentials'))
+      } else {
+        // Unknown cause (e.g. CORS/network or a different Supabase project in
+        // production): surface the provider's own message so it is visible
+        // instead of a generic one.
+        const rawMessage =
+          error instanceof Error &&
+          error.message &&
+          error.message !== 'Failed to fetch'
+            ? error.message
+            : null
+        toast.error(
+          rawMessage ??
+            (mode === 'signin'
+              ? t('chat.auth.invalidCredentials')
+              : t('chat.auth.signUpFailed')),
+        )
+      }
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleRegister = async (values: RegisterInput) => {
-    setSubmitting(true)
+  const handleResend = async () => {
+    const email = form.getValues('email')
+    if (!email) return
+    setResending(true)
     try {
-      await register(values)
-      setAuthCompleted(true)
-      toast.success(t('auth.register.success'))
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t('auth.register.error'),
-      )
+      await resendConfirmation(email)
+      toast.success(t('chat.auth.confirmationSent'))
+    } catch {
+      toast.error(t('chat.auth.resendFailed'))
     } finally {
-      setSubmitting(false)
+      setResending(false)
     }
-  }
-
-  const gradientBg = {
-    background: 'linear-gradient(to right, var(--cs-primary, #D90429), var(--cs-secondary, #FF4D6A))'
   }
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="mb-4">
-        <h2 className="text-base font-semibold">{t('chat.startTitle')}</h2>
+        <h2 className="text-base font-semibold">{t('chat.auth.title')}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {t('chat.startSubtitle')}
+          {t('chat.auth.subtitle')}
         </p>
       </div>
 
-      {/* Tab buttons */}
-      <div className="flex gap-2 mb-4">
+      <div className="mb-4 grid grid-cols-2 gap-1 rounded-lg bg-muted p-1">
         <button
-          onClick={() => setTab('login')}
-          style={tab === 'login' ? gradientBg : undefined}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-            tab === 'login'
-              ? 'text-white'
-              : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
-          }`}
+          type="button"
+          onClick={() => switchMode('signin')}
+          className={cn(
+            'cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            mode === 'signin'
+              ? 'bg-background text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
         >
-          <LogIn className="size-4" />
-          {t('auth.login.submit')}
+          {t('chat.auth.tabSignIn')}
         </button>
         <button
-          onClick={() => setTab('register')}
-          style={tab === 'register' ? gradientBg : undefined}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-            tab === 'register'
-              ? 'text-white'
-              : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10'
-          }`}
+          type="button"
+          onClick={() => switchMode('signup')}
+          className={cn(
+            'cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+            mode === 'signup'
+              ? 'bg-background text-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
         >
-          <UserPlus className="size-4" />
-          {t('auth.register.submit')}
+          {t('chat.auth.tabSignUp')}
         </button>
       </div>
 
-      {/* Login form */}
-      {tab === 'login' && (
-        <form
-          onSubmit={loginForm.handleSubmit(handleLogin)}
-          className="flex flex-col gap-3"
-        >
-          <div className="space-y-1">
-            <Label htmlFor="chat-login-email" className="text-xs text-gray-400">
-              {t('auth.login.email')}
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-500" />
-              <Input
-                id="chat-login-email"
-                type="email"
-                placeholder="email@example.com"
-                autoComplete="email"
-                disabled={submitting}
-                className="h-9 pl-9 text-sm"
-                {...loginForm.register('email')}
-              />
-            </div>
-            {loginForm.formState.errors.email && (
-              <p className="text-xs text-destructive">
-                {loginForm.formState.errors.email.message}
-              </p>
-            )}
+      {confirmation ? (
+        <div className="flex flex-1 flex-col justify-center gap-4">
+          <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+            {t('chat.auth.confirmationRequired')}
           </div>
-
-          <div className="space-y-1">
-            <Label
-              htmlFor="chat-login-password"
-              className="text-xs text-gray-400"
-            >
-              {t('auth.login.password')}
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-500" />
-              <Input
-                id="chat-login-password"
-                type="password"
-                placeholder="••••••••"
-                autoComplete="current-password"
-                disabled={submitting}
-                className="h-9 pl-9 text-sm"
-                {...loginForm.register('password')}
-              />
-            </div>
-            {loginForm.formState.errors.password && (
-              <p className="text-xs text-destructive">
-                {loginForm.formState.errors.password.message}
-              </p>
-            )}
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={() => router.push(config.forgotPasswordUrl || '/auth/forgot-password')}
-              className="text-xs hover:underline cursor-pointer"
-              style={{ color: 'var(--cs-primary, #D90429)' }}
-            >
-              {t('auth.login.forgotPassword')}
-            </button>
-          </div>
-
           <Button
-            type="submit"
-            disabled={submitting}
-            style={gradientBg}
-            className="mt-1 w-full h-9 cursor-pointer hover:opacity-90 border-0"
+            type="button"
+            variant="outline"
+            disabled={resending}
+            className="w-full cursor-pointer"
+            onClick={handleResend}
           >
-            {submitting && <Loader2 className="size-4 animate-spin" />}
-            {submitting ? t('auth.login.submitting') : t('auth.login.submit')}
+            {resending && <Loader2 className="size-4 animate-spin" />}
+            {t('chat.auth.resendConfirmation')}
           </Button>
-        </form>
-      )}
-
-      {/* Register form */}
-      {tab === 'register' && (
-        <form
-          onSubmit={registerForm.handleSubmit(handleRegister)}
-          className="flex flex-col gap-3"
-        >
-          <div className="space-y-1">
-            <Label
-              htmlFor="chat-reg-name"
-              className="text-xs text-gray-400"
-            >
-              {t('auth.register.fullName')}
-            </Label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-500" />
-              <Input
-                id="chat-reg-name"
-                type="text"
-                placeholder="John Doe"
-                autoComplete="name"
-                disabled={submitting}
-                className="h-9 pl-9 text-sm"
-                {...registerForm.register('fullName')}
-              />
-            </div>
-            {registerForm.formState.errors.fullName && (
-              <p className="text-xs text-destructive">
-                {registerForm.formState.errors.fullName.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label
-              htmlFor="chat-reg-email"
-              className="text-xs text-gray-400"
-            >
-              {t('auth.register.email')}
-            </Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-500" />
-              <Input
-                id="chat-reg-email"
-                type="email"
-                placeholder="email@example.com"
-                autoComplete="email"
-                disabled={submitting}
-                className="h-9 pl-9 text-sm"
-                {...registerForm.register('email')}
-              />
-            </div>
-            {registerForm.formState.errors.email && (
-              <p className="text-xs text-destructive">
-                {registerForm.formState.errors.email.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label
-              htmlFor="chat-reg-phone"
-              className="text-xs text-gray-400"
-            >
-              {t('auth.register.phone')}
-            </Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-500" />
-              <Input
-                id="chat-reg-phone"
-                type="tel"
-                placeholder="+1 555 000 0000"
-                autoComplete="tel"
-                disabled={submitting}
-                className="h-9 pl-9 text-sm"
-                {...registerForm.register('phone')}
-              />
-            </div>
-            {registerForm.formState.errors.phone && (
-              <p className="text-xs text-destructive">
-                {registerForm.formState.errors.phone.message}
-              </p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label
-              htmlFor="chat-reg-password"
-              className="text-xs text-gray-400"
-            >
-              {t('auth.register.password')}
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-500" />
-              <Input
-                id="chat-reg-password"
-                type="password"
-                placeholder="••••••••"
-                autoComplete="new-password"
-                disabled={submitting}
-                className="h-9 pl-9 text-sm"
-                {...registerForm.register('password')}
-              />
-            </div>
-            {registerForm.formState.errors.password && (
-              <p className="text-xs text-destructive">
-                {registerForm.formState.errors.password.message}
-              </p>
-            )}
-          </div>
-
           <Button
-            type="submit"
-            disabled={submitting}
-            style={gradientBg}
-            className="mt-1 w-full h-9 cursor-pointer hover:opacity-90 border-0"
+            type="button"
+            variant="outline"
+            className="w-full cursor-pointer"
+            onClick={() => switchMode('signin')}
           >
-            {submitting && <Loader2 className="size-4 animate-spin" />}
-            {submitting
-              ? t('auth.register.submitting')
-              : t('auth.register.submit')}
+            {t('chat.auth.signIn')}
           </Button>
-        </form>
+        </div>
+      ) : (
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="flex flex-col gap-4"
+          >
+            {mode === 'signup' && (
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('chat.auth.name')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="John Doe"
+                        autoComplete="name"
+                        disabled={submitting}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('chat.auth.email')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="john@example.com"
+                      autoComplete="email"
+                      disabled={submitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {mode === 'signup' && (
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t('chat.auth.phone')}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="tel"
+                        placeholder="+1 555 000 0000"
+                        autoComplete="tel"
+                        disabled={submitting}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('chat.auth.password')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="••••••••"
+                      autoComplete={
+                        mode === 'signin' ? 'current-password' : 'new-password'
+                      }
+                      disabled={submitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="mt-2 w-full cursor-pointer bg-gradient-to-r from-[#D90429] to-[#FF4D6A] hover:from-[#B80324] hover:to-[#D90429]"
+            >
+              {submitting && <Loader2 className="size-4 animate-spin" />}
+              {submitting
+                ? mode === 'signin'
+                  ? t('chat.auth.signingIn')
+                  : t('chat.auth.signingUp')
+                : mode === 'signin'
+                  ? t('chat.auth.signIn')
+                  : t('chat.auth.signUp')}
+            </Button>
+          </form>
+        </Form>
       )}
     </div>
   )

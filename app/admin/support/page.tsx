@@ -4,11 +4,10 @@ import {
   getAdminAuth,
   getMessageAttachment,
   getMessageText,
-  type Conversation,
-  type Message,
 } from '@/lib/customer-service'
 import { ConfigNotice } from '@/lib/customer-service/components/agent/auth-screens'
-import { createSupabaseServiceRoleClient } from '@/lib/customer-service/adapters/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/server'
+import type { Conversation, Message } from '@/types/chat'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,12 +15,8 @@ export default async function AdminSupportPage() {
   const auth = await getAdminAuth()
   if (auth.status !== 'ok') return <AdminAuthScreen auth={auth} />
 
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!url || !serviceRoleKey) return <ConfigNotice />
-
-  const service = createSupabaseServiceRoleClient(url, serviceRoleKey)
+  const service = createServiceRoleClient()
+  if (!service) return <ConfigNotice />
 
   const [conversationsRes, messagesRes] = await Promise.all([
     service
@@ -34,6 +29,9 @@ export default async function AdminSupportPage() {
       .order('created_at', { ascending: true }),
   ])
 
+  // Enrich conversations server-side so unread badges, last-message previews
+  // and timestamps are part of the initial HTML (visible even before or
+  // without client-side JavaScript, e.g. with a stale cached bundle).
   const allMessages = (messagesRes.data ?? []) as Message[]
   const byConversation = new Map<string, Message[]>()
   for (const message of allMessages) {
@@ -50,7 +48,7 @@ export default async function AdminSupportPage() {
       const lastAttachment = last ? getMessageAttachment(last) : null
       const lastMessage = last
         ? getMessageText(last) ||
-          (lastAttachment ? `📎 ${lastAttachment.name}` : null)
+          (lastAttachment ? `\u{1F4CE} ${lastAttachment.name}` : null)
         : null
       const lastReadAt =
         conversation.admin_last_read_at ?? conversation.created_at

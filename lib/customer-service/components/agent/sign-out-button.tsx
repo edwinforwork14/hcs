@@ -4,20 +4,20 @@ import { useRouter } from 'next/navigation'
 import { LogOut } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { useCustomerService } from '../../context'
-import { useAuth } from '../../hooks'
+import { useLanguage } from '@/context/language-context'
+import { getSupabaseClient } from '@/lib/supabase/client'
 
 interface SignOutButtonProps {
+  /** Compact icon-only button for tight headers (e.g. the dashboard sidebar). */
   iconOnly?: boolean
 }
 
 export function SignOutButton({ iconOnly = false }: SignOutButtonProps) {
-  const { t } = useCustomerService()
-  const { logout } = useAuth()
+  const { t } = useLanguage()
   const router = useRouter()
 
   const handleSignOut = async () => {
-    await logout()
+    await getSupabaseClient().auth.signOut()
     router.refresh()
   }
 
@@ -30,7 +30,7 @@ export function SignOutButton({ iconOnly = false }: SignOutButtonProps) {
         onClick={handleSignOut}
         aria-label={t('admin.signOut')}
         title={t('admin.signOut')}
-        className="cursor-pointer text-muted-foreground hover:text-foreground border-0"
+        className="cursor-pointer text-muted-foreground hover:text-foreground"
       >
         <LogOut className="size-4" />
       </Button>
@@ -38,8 +38,8 @@ export function SignOutButton({ iconOnly = false }: SignOutButtonProps) {
   }
 
   return (
-    <Button type="button" variant="outline" onClick={handleSignOut} className="cursor-pointer">
-      <LogOut className="size-4 mr-2" /> {t('admin.signOut')}
+    <Button type="button" variant="outline" onClick={handleSignOut}>
+      <LogOut className="size-4" /> {t('admin.signOut')}
     </Button>
   )
 }

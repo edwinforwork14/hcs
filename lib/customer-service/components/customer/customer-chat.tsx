@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 
-import { useCustomerService } from '../../context'
-import { useSupportOnline } from '../../hooks'
+import { isSupabaseConfigured } from '@/lib/supabase/client'
+import { useSupportOnline } from '@/hooks/use-support-presence'
 
 import { ChatButton } from './chat-button'
 import { ChatWindow } from './chat-window'
@@ -12,11 +12,11 @@ import { ChatWindow } from './chat-window'
 export function CustomerChat() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const { config } = useCustomerService()
   const { online, ready } = useSupportOnline()
 
-  if (!config) return null
-  if (pathname?.startsWith(config.adminRoute || '/admin')) return null
+  // Not configured yet, or we are on an admin route.
+  if (!isSupabaseConfigured) return null
+  if (pathname?.startsWith('/admin')) return null
 
   return (
     <>

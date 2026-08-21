@@ -3,7 +3,7 @@ import { Inter, Sora } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/language-context'
 import { Toaster } from '@/components/ui/sonner'
-import { CustomerServiceProvider, CustomerChat } from '@/lib/customer-service'
+import { CustomerChat } from '@/lib/customer-service'
 import './globals.css'
 
 const inter = Inter({ 
@@ -30,13 +30,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="bg-white">
       <body className={`${inter.variable} ${sora.variable} font-sans antialiased`}>
-        <CustomerServiceProvider>
-          <LanguageProvider>
-            {children}
-            <Toaster position="top-right" />
-            <CustomerChat />
-          </LanguageProvider>
-        </CustomerServiceProvider>
+        <LanguageProvider>
+          {children}
+          <Toaster position="top-right" />
+          <CustomerChat />
+        </LanguageProvider>
         {process.env.NODE_ENV === 'production' &&
           process.env.VERCEL === '1' && <Analytics />}
       </body>

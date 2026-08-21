@@ -1,129 +1,112 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import type { AuthUser } from '../core/interfaces'
-import type { Customer } from '../core/domain'
-import { useCustomerService } from '../context'
+import { useCallback, useEffect, useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
 
+import { getCustomerAuthClient } from '@/lib/supabase/client'
+
+export type CustomerAuthStatus =
+  | 'loading'
+  | 'authenticated'
+  | 'unauthenticated'
+
+export interface CustomerAuthUser {
+  id: string
+  email: string
+  name?: string
+  phone?: string
+}
+
+function toUser(session: Session | null): CustomerAuthUser | null {
+  if (!session?.user) return null
+  const metadata = session.user.user_metadata as Record<string, unknown> | null
+  return {
+    id: session.user.id,
+    email: session.user.email ?? '',
+    name: typeof metadata?.full_name === 'string' ? metadata.full_name : undefined,
+    phone:
+      typeof metadata?.phone === 'string' && metadata.phone.trim()
+        ? metadata.phone.trim()
+        : undefined,
+  }
+}
+
+/**
+ * Tracks the customer's Supabase Auth session (isolated storage key) and
+ * exposes sign-in / sign-up / sign-out helpers for the chat widget.
+ */
 export function useAuth() {
-  const { config } = useCustomerService()
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [profile, setProfile] = useState<Customer | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  const STORAGE_KEY = config.storageKey || 'hcs-chat-session'
-
-  const fetchProfile = useCallback(
-    async (userId: string) => {
-      try {
-        const data = await config.repositories.customer.findById(userId)
-        if (data) {
-          setProfile(data)
-        } else {
-          const authUser = await config.providers.auth.getCurrentUser()
-          if (authUser && authUser.id === userId) {
-            const fullName = authUser.email ? authUser.email.split('@')[0] : 'User'
-            const email = authUser.email || ''
-            const created = await config.repositories.customer.create({
-              id: userId,
-              full_name: fullName,
-              email,
-            })
-            setProfile(created)
-          } else {
-            setProfile(null)
-          }
-        }
-      } catch {
-        setProfile(null)
-      } finally {
-        setLoading(false)
-      }
-    },
-    [config.repositories.customer, config.providers.auth]
-  )
+  const [status, setStatus] = useState<CustomerAuthStatus>('loading')
+  const [user, setUser] = useState<CustomerAuthUser | null>(null)
 
   useEffect(() => {
-    config.providers.auth.getCurrentUser().then((authUser) => {
-      setUser(authUser)
-      if (authUser) {
-        fetchProfile(authUser.id)
-      } else {
-        setLoading(false)
-      }
-    })
+    const supabase = getCustomerAuthClient()
+    let cancelled = false
 
-    const unsubscribe = config.providers.auth.onAuthStateChange((authUser) => {
-      setUser(authUser)
-      if (authUser) {
-        fetchProfile(authUser.id)
-      } else {
-        setProfile(null)
-        setLoading(false)
-      }
-    })
+    const sync = (session: Session | null) => {
+      if (cancelled) return
+      setUser(toUser(session))
+      setStatus(session ? 'authenticated' : 'unauthenticated')
+    }
+
+    supabase.auth.getSession().then(({ data }) => sync(data.session))
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => sync(session),
+    )
 
     return () => {
-      unsubscribe()
+      cancelled = true
+      authListener.subscription.unsubscribe()
     }
-  }, [config.providers.auth, fetchProfile])
+  }, [])
 
-  const register = useCallback(
-    async (input: { email: string; password: string; fullName: string; phone?: string }) => {
-      const authUser = await config.providers.auth.register(
-        input.email,
-        input.password,
-        input.fullName,
-        input.phone || null
-      )
+  const signIn = useCallback(async (email: string, password: string) => {
+    const { error } = await getCustomerAuthClient().auth.signInWithPassword({
+      email,
+      password,
+    })
+    if (error) throw error
+  }, [])
 
-      try {
-        const profile = await config.repositories.customer.create({
-          id: authUser.id,
-          full_name: input.fullName,
-          email: input.email,
-          phone: input.phone || null,
-        })
-        setProfile(profile)
-      } catch {
-        // Safe fallback in case profile already existed
-        await fetchProfile(authUser.id)
+  const signUp = useCallback(
+    async (name: string, email: string, phone: string, password: string) => {
+      const { data, error } = await getCustomerAuthClient().auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name, phone } },
+      })
+      if (error) throw error
+      // Depending on the supabase-js version, an existing account is either
+      // reported as an error or as a user with an empty `identities` array.
+      if (
+        data.user &&
+        Array.isArray(data.user.identities) &&
+        data.user.identities.length === 0
+      ) {
+        const exists = new Error('Account already exists')
+        ;(exists as { code?: string }).code = 'user_already_exists'
+        throw exists
       }
-
-      return authUser
+      // When email confirmation is enabled Supabase returns no session until
+      // the visitor confirms; the caller shows a "check your email" message.
+      return Boolean(data.session)
     },
-    [config.providers.auth, config.repositories.customer, fetchProfile]
+    [],
   )
 
-  const login = useCallback(
-    async (input: { email: string; password: string }) => {
-      await config.providers.auth.login(input.email, input.password)
-    },
-    [config.providers.auth]
-  )
+  const signOut = useCallback(async () => {
+    const { error } = await getCustomerAuthClient().auth.signOut()
+    if (error) throw error
+  }, [])
 
-  const logout = useCallback(async () => {
-    await config.providers.auth.logout()
-    setUser(null)
-    setProfile(null)
-    if (typeof window !== 'undefined') {
-      window.localStorage.removeItem(STORAGE_KEY)
-    }
-  }, [config.providers.auth, STORAGE_KEY])
+  const resendConfirmation = useCallback(async (email: string) => {
+    const { error } = await getCustomerAuthClient().auth.resend({
+      type: 'signup',
+      email,
+    })
+    if (error) throw error
+  }, [])
 
-  const forgotPassword = useCallback(
-    async (input: { email: string }) => {
-      await config.providers.auth.forgotPassword(input.email)
-    },
-    [config.providers.auth]
-  )
-
-  const resetPassword = useCallback(
-    async (input: { password: string }) => {
-      await config.providers.auth.resetPassword(input.password)
-    },
-    [config.providers.auth]
-  )
-
-  return { user, profile, loading, register, login, logout, forgotPassword, resetPassword }
+  return { status, user, signIn, signUp, signOut, resendConfirmation }
 }

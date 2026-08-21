@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Paperclip, Send } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -28,20 +28,14 @@ export function MessageInput({
   onSendAttachment,
   disabled,
 }: MessageInputProps) {
-  const { config, t } = useCustomerService()
+  const { t } = useLanguage()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
-  const maxAttachmentSize = config.maxAttachmentSize ?? (25 * 1024 * 1024)
-  const allowedAttachmentTypes = config.allowedAttachmentTypes ?? [
-    'application/pdf',
-    'image/png',
-    'image/jpeg',
-    'image/gif',
-    'image/webp',
-    'text/plain',
-    'text/csv',
-    'application/msword',
+  const maxAttachmentSize = 25 * 1024 * 1024
+  const allowedAttachmentTypes = [
+    'application/pdf', 'image/png', 'image/jpeg', 'image/gif', 'image/webp',
+    'text/plain', 'text/csv', 'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     'application/vnd.ms-excel',
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

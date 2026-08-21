@@ -1,49 +1,67 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useCustomerService } from '../context'
 
+import {
+  getAnonClient,
+  getSupabaseClient,
+  isSupabaseConfigured,
+  SUPPORT_PRESENCE_CHANNEL,
+} from '@/lib/supabase/client'
+
+/**
+ * Customer side: subscribes to the shared presence channel and reports
+ * whether at least one admin is currently viewing the support dashboard.
+ */
 export function useSupportOnline() {
-  const { services, config } = useCustomerService()
   const [online, setOnline] = useState(false)
   const [ready, setReady] = useState(false)
 
-  const presenceChannel = config.presenceChannel || 'support-presence'
-
   useEffect(() => {
-    const unsubscribe = services.presence.subscribe(presenceChannel, (isOnline) => {
-      setOnline(isOnline)
-      setReady(true)
-    })
+    if (!isSupabaseConfigured) return
+
+    // Session-less client: presence must reflect admins, never the visitor.
+    const supabase = getAnonClient()
+    const channel = supabase.channel(SUPPORT_PRESENCE_CHANNEL)
+
+    channel
+      .on('presence', { event: 'sync' }, () => {
+        const state = channel.presenceState()
+        setOnline(Object.keys(state).length > 0)
+        setReady(true)
+      })
+      .subscribe()
 
     return () => {
-      unsubscribe()
+      supabase.removeChannel(channel)
     }
-  }, [services.presence, presenceChannel])
+  }, [])
 
   return { online, ready }
 }
 
+/**
+ * Admin side: tracks presence while the dashboard is mounted so customers see
+ * the agent as online. Untracks on unmount.
+ */
 export function useAdminPresence(adminEmail: string) {
-  const { services, config } = useCustomerService()
-  const presenceChannel = config.presenceChannel || 'support-presence'
-
   useEffect(() => {
-    if (!adminEmail) return
+    if (!isSupabaseConfigured || !adminEmail) return
+
+    const supabase = getSupabaseClient()
+    const channel = supabase.channel(SUPPORT_PRESENCE_CHANNEL)
 
     let tracked = false
-    services.presence.trackAgent(presenceChannel, adminEmail)
-      .then(() => {
+    channel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED' && !tracked) {
         tracked = true
-      })
-      .catch(() => {
-        // Ignore
-      })
+        await channel.track({ email: adminEmail })
+      }
+    })
 
     return () => {
-      if (tracked) {
-        services.presence.untrackAgent(presenceChannel).catch(() => {})
-      }
+      if (tracked) channel.untrack()
+      supabase.removeChannel(channel)
     }
-  }, [services.presence, presenceChannel, adminEmail])
+  }, [adminEmail])
 }

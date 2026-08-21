@@ -1,28 +1,67 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import type { ChatSession, Conversation, Message } from '../core/domain'
-import { useCustomerService } from '../context'
 
-export function useCustomerChat() {
-  const { config, anonServices } = useCustomerService()
-  const STORAGE_KEY = config.storageKey || 'hcs-chat-session'
+import { apiPost } from '@/lib/api'
+import {
+  isAllowedAttachmentType,
+  MAX_ATTACHMENT_SIZE,
+} from '@/lib/attachments'
+import { getAnonClient, isSupabaseConfigured } from '@/lib/supabase/client'
+import { MessageSchema } from '@/lib/validations/chat'
+import type {
+  ChatSession,
+  Conversation,
+  CreateMessagePayload,
+  CreateMessageResult,
+  Message,
+  StartChatPayload,
+  StartChatResult,
+  UploadPayload,
+  UploadResult,
+} from '@/types/chat'
+import { useRealtime } from '@/hooks/use-realtime'
 
-  function loadSession(): ChatSession | null {
-    if (typeof window === 'undefined') return null
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY)
-      if (!raw) return null
-      const parsed = JSON.parse(raw) as ChatSession
-      if (!parsed.conversationId || !parsed.customerName || !parsed.customerEmail) {
-        return null
-      }
-      return parsed
-    } catch {
+const STORAGE_KEY = 'hcs-chat-session'
+
+function loadSession(): ChatSession | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as ChatSession
+    if (!parsed.conversationId || !parsed.customerName || !parsed.customerEmail) {
       return null
     }
+    return parsed
+  } catch {
+    return null
   }
+}
 
+function upsertMessage(list: Message[], message: Message): Message[] {
+  const index = list.findIndex((m) => m.id === message.id)
+  if (index === -1) {
+    return [...list, message].sort((a, b) =>
+      a.created_at.localeCompare(b.created_at),
+    )
+  }
+  const next = [...list]
+  next[index] = message
+  return next
+}
+
+/** Best-effort location derived from the visitor's IANA timezone. */
+function getCustomerLocation(): string | null {
+  try {
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    return timeZone || null
+  } catch {
+    return null
+  }
+}
+
+export function useCustomerChat() {
   const [session, setSession] = useState<ChatSession | null>(() => loadSession())
   const [conversation, setConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -31,32 +70,43 @@ export function useCustomerChat() {
 
   const conversationId = session?.conversationId
 
+  // Load conversation + message history when a session exists.
   useEffect(() => {
-    if (!conversationId) {
+    if (!conversationId || !isSupabaseConfigured) {
       setConversation(null)
       setMessages([])
       return
     }
 
     let cancelled = false
+    const supabase = getAnonClient()
     setLoadingHistory(true)
 
     Promise.all([
-      anonServices.conversation.getConversation(conversationId),
-      anonServices.message.getMessages(conversationId),
+      supabase
+        .from('conversations')
+        .select('*')
+        .eq('id', conversationId)
+        .maybeSingle(),
+      supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true }),
     ])
-      .then(([conv, msgs]) => {
+      .then(([convRes, msgRes]) => {
         if (cancelled) return
-        if (!conv) {
+        if (!convRes.data) {
+          // Conversation no longer exists — start fresh.
           window.localStorage.removeItem(STORAGE_KEY)
           setSession(null)
           return
         }
-        setConversation(conv)
-        setMessages(msgs)
+        setConversation(convRes.data)
+        setMessages(msgRes.data ?? [])
       })
       .catch(() => {
-        // Keep session
+        // Keep the session; the widget can still retry on next open.
       })
       .finally(() => {
         if (!cancelled) setLoadingHistory(false)
@@ -65,125 +115,158 @@ export function useCustomerChat() {
     return () => {
       cancelled = true
     }
-  }, [conversationId, anonServices.conversation, anonServices.message, STORAGE_KEY])
+  }, [conversationId])
 
+  // Realtime: new messages for this conversation.
+  const messagePayload = useRealtime(
+    'messages',
+    conversationId ? `conversation_id=eq.${conversationId}` : undefined,
+    Boolean(conversationId),
+  )
   useEffect(() => {
-    if (!conversationId) return
+    const payload = messagePayload.payload
+    if (!payload || payload.eventType === 'DELETE') return
+    const message = payload.new as unknown as Message | undefined
+    if (!message?.id) return
+    setMessages((prev) => upsertMessage(prev, message))
+  }, [messagePayload.payload])
 
-    const unsubscribe = config.providers.realtime.subscribe(
-      'messages',
-      `conversation_id=eq.${conversationId}`,
-      (event) => {
-        if (event.eventType === 'DELETE') return
-        const message = event.new as unknown as Message
-        if (!message?.id) return
-        setMessages((prev) => {
-          const index = prev.findIndex((m) => m.id === message.id)
-          if (index === -1) {
-            return [...prev, message].sort((a, b) => a.created_at.localeCompare(b.created_at))
-          }
-          const next = [...prev]
-          next[index] = message
-          return next
-        })
-      }
-    )
-
-    return () => {
-      unsubscribe()
-    }
-  }, [conversationId, config.providers.realtime])
-
+  // Realtime: conversation updates (e.g. status -> closed).
+  const conversationPayload = useRealtime(
+    'conversations',
+    conversationId ? `id=eq.${conversationId}` : undefined,
+    Boolean(conversationId),
+  )
   useEffect(() => {
-    if (!conversationId) return
-
-    const unsubscribe = config.providers.realtime.subscribe(
-      'conversations',
-      `id=eq.${conversationId}`,
-      (event) => {
-        if (event.eventType === 'DELETE') return
-        const updated = event.new as unknown as Conversation
-        if (!updated?.id) return
-        setConversation((prev) => (prev && prev.id === updated.id ? updated : prev))
-      }
-    )
-
-    return () => {
-      unsubscribe()
-    }
-  }, [conversationId, config.providers.realtime])
+    const payload = conversationPayload.payload
+    if (!payload || payload.eventType === 'DELETE') return
+    const updated = payload.new as unknown as Conversation | undefined
+    if (!updated?.id) return
+    setConversation((prev) => (prev && prev.id === updated.id ? updated : prev))
+  }, [conversationPayload.payload])
 
   const startConversation = useCallback(
     async (input: { customerName: string; customerEmail: string; customerPhone?: string }, language?: string) => {
-      const { conversation: conv, welcomeMessage } = await anonServices.chat.startConversation({
+      if (!isSupabaseConfigured) throw new Error('Chat is not configured')
+
+      // The server creates the conversation and inserts the automatic
+      // welcome message from the administration (anon clients cannot write
+      // messages as `admin` due to RLS).
+      const payload: StartChatPayload = {
         customerName: input.customerName,
         customerEmail: input.customerEmail,
-        customerPhone: input.customerPhone,
-        language,
-      })
+        customerPhone: input.customerPhone || undefined,
+        customerLocation: getCustomerLocation() ?? undefined,
+        language: language === 'es' ? 'es' : 'en',
+      }
+      const response = await apiPost<StartChatResult, StartChatPayload>(
+        '/api/chat/start',
+        payload,
+      )
+      const { conversation: conv, welcomeMessage } = response.data ?? {}
+      if (!conv) {
+        throw new Error('Could not start the conversation')
+      }
 
       const nextSession: ChatSession = {
         conversationId: conv.id,
         customerName: conv.customer_name,
         customerEmail: conv.customer_email,
-        customerPhone: conv.customer_phone || undefined,
+        customerPhone: conv.customer_phone ?? undefined,
       }
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextSession))
       setSession(nextSession)
       setConversation(conv)
-
-      const msgs = await anonServices.message.getMessages(conv.id)
-      setMessages(msgs)
+      if (welcomeMessage) {
+        setMessages([welcomeMessage])
+      }
     },
-    [anonServices.chat, anonServices.message, STORAGE_KEY]
+    [],
   )
 
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!session) return
+      const parsed = MessageSchema.safeParse({ content })
+      if (!parsed.success || !session) return
       setSending(true)
       try {
-        const msg = await anonServices.chat.sendCustomerMessage(session.conversationId, content)
-        setMessages((prev) => {
-          const index = prev.findIndex((m) => m.id === msg.id)
-          if (index === -1) {
-            return [...prev, msg].sort((a, b) => a.created_at.localeCompare(b.created_at))
-          }
-          const next = [...prev]
-          next[index] = msg
-          return next
-        })
+        const supabase = getAnonClient()
+        const { data, error } = await supabase
+          .from('messages')
+          .insert({
+            conversation_id: session.conversationId,
+            sender_type: 'customer',
+            content: parsed.data.content,
+          })
+          .select()
+          .single()
+        if (error) throw error
+        setMessages((prev) => upsertMessage(prev, data))
       } finally {
         setSending(false)
       }
     },
-    [session, anonServices.chat]
+    [session],
   )
 
+  /** Upload a file and send it (optionally with text) as a customer message. */
   const sendAttachment = useCallback(
-    async (file: File, content: string = '') => {
+    async (file: File, content = '') => {
       if (!session) return
+      if (file.size > MAX_ATTACHMENT_SIZE) {
+        throw new Error('File too large')
+      }
+      if (!isAllowedAttachmentType(file.type)) {
+        throw new Error('File type not allowed')
+      }
       setSending(true)
       try {
-        const msg = await anonServices.chat.sendCustomerAttachment(
-          session.conversationId,
-          { name: file.name, size: file.size, type: file.type, data: file },
-          content
+        // 1. Ask the server for a signed upload URL.
+        const uploadRes = await apiPost<UploadResult, UploadPayload>(
+          '/api/chat/upload',
+          {
+            conversationId: session.conversationId,
+            fileName: file.name,
+            fileType: file.type || 'application/octet-stream',
+            fileSize: file.size,
+          },
         )
-        setMessages((prev) => {
-          const index = prev.findIndex((m) => m.id === msg.id)
-          if (index === -1) {
-            return [...prev, msg].sort((a, b) => a.created_at.localeCompare(b.created_at))
-          }
-          const next = [...prev]
-          next[index] = msg
-          return next
+        const upload = uploadRes.data
+        if (!upload?.uploadUrl) throw new Error('Could not prepare upload')
+
+        // 2. Upload the bytes straight to Supabase Storage.
+        const put = await fetch(upload.uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type || 'application/octet-stream',
+          },
+          body: file,
         })
+        if (!put.ok) throw new Error('Upload failed')
+
+        // 3. Create the message with the attachment metadata.
+        const messageRes = await apiPost<
+          CreateMessageResult,
+          CreateMessagePayload
+        >('/api/chat/message', {
+          conversationId: session.conversationId,
+          senderType: 'customer',
+          content: content.trim(),
+          attachment: {
+            name: file.name,
+            size: file.size,
+            type: file.type || 'application/octet-stream',
+            path: upload.path,
+          },
+        })
+        const message = messageRes.data?.message
+        if (!message) throw new Error('Could not send message')
+        setMessages((prev) => upsertMessage(prev, message))
       } finally {
         setSending(false)
       }
     },
-    [session, anonServices.chat]
+    [session],
   )
 
   const resetConversation = useCallback(() => {
@@ -193,7 +276,7 @@ export function useCustomerChat() {
     setSession(null)
     setConversation(null)
     setMessages([])
-  }, [STORAGE_KEY])
+  }, [])
 
   return {
     session,

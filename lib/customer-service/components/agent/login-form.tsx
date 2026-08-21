@@ -6,21 +6,21 @@ import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { ArrowLeft, Loader2, MessageCircle, Globe } from 'lucide-react'
+import { ArrowLeft, Loader2, MessageCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useCustomerService } from '../../context'
-import { useAuth } from '../../hooks'
+import { LanguageToggle } from '@/components/language-toggle'
+import { useLanguage } from '@/context/language-context'
+import { getSupabaseClient } from '@/lib/supabase/client'
 import {
   AdminLoginSchema,
   type AdminLoginInput,
 } from '@/lib/validations/chat'
 
 export function LoginForm() {
-  const { language, setLanguage, t } = useCustomerService()
-  const { login } = useAuth()
+  const { t } = useLanguage()
   const router = useRouter()
   const [submitting, setSubmitting] = useState(false)
 
@@ -32,10 +32,12 @@ export function LoginForm() {
   const handleSubmit = async (values: AdminLoginInput) => {
     setSubmitting(true)
     try {
-      await login({
+      const { error } = await getSupabaseClient().auth.signInWithPassword({
         email: values.email,
         password: values.password,
       })
+      if (error) throw error
+      // Re-run the server component to pick up the new session.
       router.refresh()
     } catch (error) {
       toast.error(
@@ -51,27 +53,13 @@ export function LoginForm() {
     <div className="flex min-h-dvh items-center justify-center bg-muted/30 p-6">
       <div className="relative w-full max-w-sm rounded-xl border bg-background p-8 shadow-sm">
         <div className="absolute right-4 top-4">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setLanguage(language === 'en' ? 'es' : 'en')}
-            className="cursor-pointer border-0"
-            title={language === 'en' ? 'Español' : 'English'}
-          >
-            <Globe className="size-4 text-muted-foreground" />
-          </Button>
+          <LanguageToggle variant="panel" />
         </div>
         <div className="flex flex-col items-center text-center">
-          <div
-            style={{
-              background: 'linear-gradient(to right, var(--cs-primary, #D90429), var(--cs-secondary, #FF4D6A))',
-            }}
-            className="flex size-12 items-center justify-center rounded-full text-white"
-          >
-            <MessageCircle className="size-6 text-white" />
+          <div className="flex size-12 items-center justify-center rounded-full bg-gradient-to-r from-[#D90429] to-[#FF4D6A] text-white">
+            <MessageCircle className="size-6" />
           </div>
-          <h1 className="mt-4 text-lg font-semibold text-foreground">{t('admin.login.title')}</h1>
+          <h1 className="mt-4 text-lg font-semibold">{t('admin.login.title')}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {t('admin.login.subtitle')}
           </p>
@@ -89,7 +77,6 @@ export function LoginForm() {
               placeholder="admin@hcstradingllc.org"
               autoComplete="email"
               disabled={submitting}
-              className="bg-background text-foreground"
               {...form.register('email')}
             />
             {form.formState.errors.email && (
@@ -107,7 +94,6 @@ export function LoginForm() {
               placeholder="••••••••"
               autoComplete="current-password"
               disabled={submitting}
-              className="bg-background text-foreground"
               {...form.register('password')}
             />
             {form.formState.errors.password && (
@@ -120,19 +106,16 @@ export function LoginForm() {
           <Button
             type="submit"
             disabled={submitting}
-            className="w-full cursor-pointer text-white"
-            style={{
-              background: 'linear-gradient(to right, var(--cs-primary, #D90429), var(--cs-secondary, #FF4D6A))',
-            }}
+            className="w-full cursor-pointer"
           >
-            {submitting && <Loader2 className="size-4 animate-spin mr-2" />}
+            {submitting && <Loader2 className="size-4 animate-spin" />}
             {submitting ? t('admin.signingIn') : t('admin.signIn')}
           </Button>
         </form>
 
-        <Button asChild variant="ghost" className="mt-4 w-full cursor-pointer text-muted-foreground">
+        <Button asChild variant="ghost" className="mt-4 w-full cursor-pointer">
           <Link href="/">
-            <ArrowLeft className="size-4 mr-2" /> {t('admin.backToSite')}
+            <ArrowLeft className="size-4" /> {t('admin.backToSite')}
           </Link>
         </Button>
       </div>

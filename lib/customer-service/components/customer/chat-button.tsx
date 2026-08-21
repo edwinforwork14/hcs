@@ -3,7 +3,7 @@
 import { MessageCircle, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 
 interface ChatButtonProps {
   open: boolean
@@ -18,7 +18,7 @@ export function ChatButton({
   online,
   presenceReady,
 }: ChatButtonProps) {
-  const { t } = useCustomerService()
+  const { t } = useLanguage()
   return (
     <Button
       type="button"
