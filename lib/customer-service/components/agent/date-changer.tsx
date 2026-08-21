@@ -8,7 +8,7 @@ import { Calendar, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 import type { Conversation } from '../../core/domain'
 
 interface DateChangerProps {
@@ -16,7 +16,7 @@ interface DateChangerProps {
 }
 
 export function DateChanger({ initialConversations }: DateChangerProps) {
-  const { t } = useCustomerService()
+  const { t } = useLanguage()
   const router = useRouter()
   const [selectedId, setSelectedId] = useState<string>(initialConversations[0]?.id ?? '')
   const [targetDate, setTargetDate] = useState<string>('')

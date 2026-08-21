@@ -4,7 +4,7 @@ import { Lock, LockOpen, MessageSquareText } from 'lucide-react'
 
 import type { UseConversations } from '../../hooks/use-conversations'
 import { Button } from '@/components/ui/button'
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 import {
   Empty,
   EmptyDescription,
@@ -17,7 +17,7 @@ import { MessageInput } from './message-input'
 import { MessageList } from './message-list'
 
 export function ConversationView({ chat }: { chat: UseConversations }) {
-  const { t } = useCustomerService()
+  const { t } = useLanguage()
   const {
     selectedConversation,
     selectedMessages,

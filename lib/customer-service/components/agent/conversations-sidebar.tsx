@@ -2,7 +2,7 @@
 
 import { Search, Globe } from 'lucide-react'
 
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 import type { UseConversations } from '../../hooks/use-conversations'
 
 import { SignOutButton } from './sign-out-button'
@@ -23,7 +23,7 @@ const FILTERS: { value: ConversationFilter; key: string }[] = [
 ]
 
 export function ConversationsSidebar({ chat }: { chat: UseConversations }) {
-  const { language, setLanguage, t } = useCustomerService()
+  const { language, setLanguage, t } = useLanguage()
   const {
     conversations,
     selectedId,

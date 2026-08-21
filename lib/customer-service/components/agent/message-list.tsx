@@ -6,7 +6,7 @@ import { ArrowDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { DateDivider } from '@/components/chat/date-divider'
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 import { computeMessageDividers } from '@/lib/time'
 import type { Message } from '../../core/domain'
 
@@ -19,7 +19,7 @@ export function MessageList({
   messages: Message[]
   lastReadAt: string | null
 }) {
-  const { t } = useCustomerService()
+  const { t } = useLanguage()
   const scrollRef = useRef<HTMLDivElement>(null)
   const nearBottomRef = useRef(true)
   const [showJump, setShowJump] = useState(false)

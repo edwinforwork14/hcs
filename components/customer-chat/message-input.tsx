@@ -6,9 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Paperclip, Send } from 'lucide-react'
 import { toast } from 'sonner'
 
+import { useLanguage } from '@/context/language-context'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { useLanguage } from '@/context/language-context'
+import {
+  isAllowedAttachmentType,
+  MAX_ATTACHMENT_SIZE,
+} from '@/lib/attachments'
 import {
   MessageSchema,
   type MessageInput as MessageInputValues,
@@ -32,24 +36,6 @@ export function MessageInput({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
 
-  const maxAttachmentSize = 25 * 1024 * 1024
-  const allowedAttachmentTypes = [
-    'application/pdf',
-    'image/png',
-    'image/jpeg',
-    'image/gif',
-    'image/webp',
-    'text/plain',
-    'text/csv',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/vnd.ms-powerpoint',
-    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    'application/zip',
-  ]
-
   const form = useForm<MessageInputValues>({
     resolver: zodResolver(MessageSchema),
     defaultValues: { content: '' },
@@ -66,11 +52,11 @@ export function MessageInput({
     event.target.value = ''
     if (!file || uploading) return
 
-    if (file.size > maxAttachmentSize) {
+    if (file.size > MAX_ATTACHMENT_SIZE) {
       toast.error(t('chat.fileTooBig'))
       return
     }
-    if (!allowedAttachmentTypes.includes(file.type)) {
+    if (!isAllowedAttachmentType(file.type)) {
       toast.error(t('chat.fileTypeNotAllowed'))
       return
     }
@@ -91,7 +77,7 @@ export function MessageInput({
   return (
     <form
       onSubmit={form.handleSubmit(handleSubmit)}
-      className="flex items-end gap-2 border-t p-3 bg-background"
+      className="flex items-end gap-2 border-t p-3"
     >
       <input
         ref={fileInputRef}
@@ -118,8 +104,8 @@ export function MessageInput({
       </Button>
       <Textarea
         rows={1}
-        placeholder={t('admin.typeMessage')}
-        className="min-h-10 max-h-32 flex-1 resize-none bg-background text-foreground"
+        placeholder={t('chat.placeholder')}
+        className="min-h-10 max-h-32 flex-1 resize-none"
         disabled={busy}
         {...form.register('content')}
         onKeyDown={(e) => {
@@ -133,8 +119,8 @@ export function MessageInput({
         type="submit"
         size="icon"
         disabled={busy}
-        aria-label={t('admin.sendMessage')}
-        className="cursor-pointer"
+        aria-label={t('chat.send')}
+        className="cursor-pointer bg-gradient-to-r from-[#D90429] to-[#FF4D6A] hover:from-[#B80324] hover:to-[#D90429]"
       >
         <Send className="size-4" />
       </Button>

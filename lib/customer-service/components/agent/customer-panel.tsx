@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Clock, Globe, Mail, MapPin, Phone, User } from 'lucide-react'
 
-import { useCustomerService } from '../../context'
+import { useLanguage } from '@/context/language-context'
 import type { UseConversations } from '../../hooks/use-conversations'
 import { formatConversationTime, formatFullDateTime } from '@/lib/time'
 
@@ -70,7 +70,7 @@ function UserIcon({ color }: { color: string }) {
 }
 
 export function CustomerPanel({ chat }: { chat: UseConversations }) {
-  const { t, language } = useCustomerService()
+  const { t, language } = useLanguage()
   const { selectedConversation } = chat
   const [collapsed, setCollapsed] = useState(false)
   const [showingContent, setShowingContent] = useState(true)
