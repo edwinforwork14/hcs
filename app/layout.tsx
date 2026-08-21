@@ -3,7 +3,14 @@ import { Inter, Sora } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/language-context'
 import { Toaster } from '@/components/ui/sonner'
-import { ChatWidget } from '@/components/customer-chat/chat-widget'
+import dynamic from 'next/dynamic'
+
+// SSR disabled: avoids the Windows casing bug that breaks React hydration
+// when next/navigation is loaded by the layout router.
+const ChatWidget = dynamic(
+  () => import('@/components/customer-chat/chat-widget').then((m) => m.ChatWidget),
+  { ssr: false },
+)
 import './globals.css'
 
 const inter = Inter({ 
