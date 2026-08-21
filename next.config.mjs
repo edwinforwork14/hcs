@@ -51,7 +51,17 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config) => {
+  webpack: (config, { dev }) => {
+    // ── Windows casing fix ──────────────────────────────────────────
+    // process.cwd() returns lowercase 'desktop' but the real directory
+    // is 'Desktop'. Webpack resolves modules using cwd, creating two
+    // identifiers for the same file.  Force ALL resolve paths to go
+    // through the correctly-cased __dirname so webpack only sees one.
+    if (dev) {
+      // Override webpack's context (base dir) to use the real casing.
+      config.context = __dirname
+    }
+
     // Stop the dev watcher from reacting to files that change constantly
     // without being part of the app (e.g. the Freebuff desktop app's local
     // database, which is written on every chat activity). Those writes

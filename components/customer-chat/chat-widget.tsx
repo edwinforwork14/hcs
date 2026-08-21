@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { useState, useEffect } from 'react'
 
 import { isSupabaseConfigured } from '@/lib/supabase/client'
 import { useSupportOnline } from '@/hooks/use-support-presence'
@@ -10,13 +9,20 @@ import { ChatButton } from './chat-button'
 import { ChatWindow } from './chat-window'
 
 export function ChatWidget() {
-  const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const { online, ready } = useSupportOnline()
+  const [isClient, setIsClient] = useState(false)
+  const [isOnAdmin, setIsOnAdmin] = useState(false)
 
-  // Not configured yet, or we are on an admin route.
-  if (!isSupabaseConfigured) return null
-  if (pathname?.startsWith('/admin')) return null
+  // Only mount on client side to avoid hydration issues with usePathname.
+  // Check admin route via window.location (avoids import of next/navigation
+  // which triggers a layout-router casing bug on Windows + Next 16).
+  useEffect(() => {
+    setIsClient(true)
+    setIsOnAdmin(window.location.pathname.startsWith('/admin'))
+  }, [])
+
+  if (!isClient || !isSupabaseConfigured || isOnAdmin) return null
 
   return (
     <>
